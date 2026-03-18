@@ -765,7 +765,7 @@ def _build_map():
 
         marker = folium.Marker(
             location=[row['lat'], row['long']],
-            popup=folium.Popup(popup_html, max_width=640, max_height=500),
+            popup=folium.Popup(popup_html, max_width=640, max_height=500, autoPanPadding=[20, 60]),
             tooltip=folium.Tooltip(row['stationName'], style='font-family:Arial;font-size:12px;'),
             icon=folium.DivIcon(icon_size=(22, 22), icon_anchor=(11, 11), html=marker_icon_html, class_name=''),
         )
@@ -844,7 +844,18 @@ function loadLiveTrains(btn, crs) {
             if (!data.departures.length && !data.arrivals.length) html += '<div style="color:#999;font-size:11px;padding:4px;">No services found.</div>';
             container.innerHTML = html;
             btn.textContent = '\u21bb Refresh'; btn.disabled = false; btn.style.opacity = '1';
-            try { var mapObj = null; for (var k in window) { try { if (window[k] && typeof window[k].getZoom === 'function' && window[k]._container) { mapObj = window[k]; break; } } catch(e) {} } if (mapObj) setTimeout(function() { mapObj.invalidateSize(); var ll = mapObj._popup && mapObj._popup.getLatLng(); if (ll) mapObj.panTo(ll); }, 120); } catch(e) {}
+            try { var mapObj = null; for (var k in window) { try { if (window[k] && typeof window[k].getZoom === 'function' && window[k]._container) { mapObj = window[k]; break; } } catch(e) {} } if (mapObj) setTimeout(function() { mapObj.invalidateSize(); var ll = mapObj._popup && mapObj._popup.getLatLng(); if (ll) {
+                        var popup = mapObj._popup;
+                        if (popup && popup._container) {
+                            var pH = popup._container.offsetHeight || 300;
+                            var pt = mapObj.latLngToContainerPoint(ll);
+                            pt.y -= pH / 2 + 20;
+                            var newLL = mapObj.containerPointToLatLng(pt);
+                            mapObj.panTo(newLL, {animate: true});
+                        } else {
+                            mapObj.panTo(ll);
+                        }
+                    } }, 120); } catch(e) {}
         })
         .catch(function() { container.innerHTML = '<div style="color:#d7191c;font-size:11px;padding:4px;">Failed to load data.</div>'; btn.disabled = false; btn.style.opacity = '1'; });
 }
