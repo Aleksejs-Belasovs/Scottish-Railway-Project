@@ -1,0 +1,35 @@
+# Environment & secrets
+.env
+.env.*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Large data files (>100MB GitHub limit)
+data/ODM_for_RDM_2024-25.csv
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+# Large data files no longer needed at runtime
+data/ODM_scotland_2024-25.csv
+data/table-1410-passenger-entries-and-exits-and-interchanges-by-station.csv
+data/uk_railways2.geojson
+data/station_performance.csv
+assets/images/image.png
+data/railways_scotland.geojson
+data/scotland.json

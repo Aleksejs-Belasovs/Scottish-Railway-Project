@@ -1,0 +1,363 @@
+origin_tlc,destination_station_name,journeys
+ABD,Edinburgh,136043
+AUR,Edinburgh,33880
+AAT,Dingwall,190
+ACN,Inverness,837
+ACH,Inverness,209
+ADW,Edinburgh,3746
+AIR,Glasgow Central,20861
+ADR,Glasgow Queen Street,198441
+AXP,Glasgow Queen Street,70574
+ALX,Glasgow Queen Street,25687
+ALO,Glasgow Queen Street,97297
+ASS,Inverness,4852
+AND,Partick,19760
+ANN,Dumfries,17997
+ANL,Glasgow Queen Street,111247
+ARB,Dundee,72388
+ARD,Inverness,1326
+AUI,Glasgow Queen Street,280
+ADS,Glasgow Central,24358
+ASB,Glasgow Central,43662
+ADN,Glasgow Central,3993
+AGS,Rutherglen,65168
+ARG,Fort William,853
+ARM,Glasgow Queen Street,23010
+ART,Glasgow Queen Street,3643
+ASF,Glasgow Queen Street,20598
+ATT,Inverness,113
+AUK,Glasgow Central,19210
+AVM,Inverness,14774
+AYR,Glasgow Central,147213
+BIO,Glasgow Central,29751
+BHC,Glasgow Queen Street,65216
+BSI,Dundee,620
+BNV,Mallaig,815
+BSS,Glasgow Central,39582
+BGI,Glasgow Central,19243
+BNL,Glasgow Queen Street,11540
+BRR,Glasgow Central,194645
+BRL,Glasgow Central,629
+BYL,Dundee,160
+BHG,Edinburgh,269755
+BRN,Glasgow Queen Street,58988
+BSL,Mallaig,31
+BEL,Inverness,13942
+BLG,Glasgow Queen Street,118359
+BLH,Glasgow Central,184964
+BBG,Glasgow Queen Street,253650
+BPT,Glasgow Central,221082
+BKR,Edinburgh,8317
+BLA,Pitlochry,1740
+BAI,Glasgow Queen Street,94351
+BLT,Glasgow Central,88669
+BGS,Glasgow Central,3293
+BWG,Glasgow Central,2726
+BCN,Glasgow Central,26522
+BRC,Edinburgh,1215
+BEA,Glasgow Queen Street,27605
+BRO,Corrour,507
+BDG,Glasgow Central,116090
+BRA,Inverness,687
+BYF,Dundee,36553
+BSU,Edinburgh,47091
+BUI,Glasgow Central,62543
+BTS,Edinburgh,52433
+BUS,Glasgow Central,36095
+CAC,Glasgow Queen Street,6775
+CBL,Glasgow Central,193617
+CMO,Edinburgh,24956
+CBX,Edinburgh,13987
+CDD,Edinburgh,8429
+CDO,Glasgow Central,56222
+CDR,Craigendoran,26596
+CRF,Glasgow Central,37825
+CLU,Glasgow Central,87566
+CML,Glasgow Central,22915
+CAN,Dundee,35475
+CAY,Glasgow Queen Street,71203
+CAG,Inverness,1395
+CRS,Edinburgh,8951
+CDY,Glasgow Central,19812
+CCT,Glasgow Central,184223
+CHC,Bellgrove,52828
+CTE,Glasgow Central,16569
+CKS,Glasgow Central,116083
+CEA,Glasgow Central,26937
+CYK,Glasgow Central,28142
+CBC,Motherwell,5947
+CBS,Glasgow Queen Street,95514
+COA,Glasgow Queen Street,51792
+CON,Oban,6984
+CBD,Inverness,3836
+CKH,Glasgow Central,58387
+CPA,Fort William,480
+CRR,Fort William,1856
+COW,Edinburgh,33486
+CGD,Cardross,26596
+CNR,Oban,1639
+CFF,Glasgow Central,74143
+CKT,Glasgow Central,58803
+COI,Glasgow Central,86269
+CMY,Glasgow Central,232010
+CRO,Glasgow Queen Street,383125
+CUA,Inverness,50
+CUB,Glasgow Queen Street,28771
+CUP,Edinburgh,37724
+CUH,Edinburgh,30133
+DAG,Edinburgh,69835
+DAL,Oban,5744
+DAK,Glasgow Central,64544
+DAM,Edinburgh,152486
+DMR,Glasgow Queen Street,66907
+DLR,Glasgow Queen Street,34007
+DLY,Glasgow Central,39995
+DLW,Edinburgh,269
+DIN,Inverness,13284
+DRM,Edinburgh,40685
+DMC,Glasgow Queen Street,32928
+DFR,Glasgow Central,16495
+DRU,Glasgow Queen Street,61088
+DMY,Glasgow Queen Street,26144
+DRN,Inverness,144
+DST,Glasgow Queen Street,44102
+DBC,Glasgow Queen Street,73187
+DBE,Glasgow Queen Street,58279
+DUM,Glasgow Central,45958
+DMF,Glasgow Central,24344
+DUN,Edinburgh,122155
+DBL,Stirling,64568
+DCG,Kyle Of Lochalsh,59
+DEE,Edinburgh,156518
+DFE,Edinburgh,178774
+DFL,Edinburgh,33220
+DKD,Glasgow Queen Street,4573
+DNL,Glasgow Central,22125
+DNO,Inverness,430
+DYC,Aberdeen,92284
+EKL,Glasgow Central,217945
+ELT,Edinburgh,24323
+EST,Glasgow Queen Street,56668
+EDB,Glasgow Queen Street,1184768
+EGY,Edinburgh,18588
+EDP,Edinburgh,57944
+ELG,Inverness,39532
+EKB,Edinburgh,88846
+EXG,Glasgow Central,204003
+FRL,Glasgow Central,9560
+FKG,Edinburgh,103734
+FKK,Edinburgh,131129
+FOC,Oban,356
+FLD,Edinburgh,10082
+FRN,Inverness,971
+FOR,Inverness,27399
+FRS,Inverness,216
+FTM,Glasgow Central,31674
+FTW,Mallaig,29134
+GAL,Edinburgh,86253
+GCH,Glasgow Central,1827
+GAR,Glasgow Queen Street,83093
+GRS,Glasgow Central,27217
+GRH,Glasgow Queen Street,65677
+GVE,Inverness,1114
+GGJ,Inverness,332
+GFN,Glasgow Central,79193
+GSC,Glasgow Queen Street,23218
+GIR,Ayr,15632
+GLC,Paisley Gilmour Street,757647
+GLQ,Edinburgh,1184768
+GLE,Glasgow Queen Street,13774
+GLF,Fort William,4784
+GLG,Glasgow Central,71273
+GLT,Edinburgh,13024
+GOF,Dundee,562
+GOL,Brora,642
+GBG,Edinburgh,41431
+GRK,Glasgow Central,107495
+GRL,Glasgow Queen Street,29454
+GKC,Glasgow Central,54828
+GKW,Glasgow Central,79038
+GEA,Dumfries,5193
+HMY,Glasgow Central,164426
+HNC,Glasgow Central,142733
+HNW,Glasgow Central,148805
+HTW,Glasgow Central,2644
+HKH,Glasgow Central,78920
+HYM,Glasgow Queen Street,260710
+HLC,Glasgow Queen Street,94603
+HLU,Glasgow Queen Street,1522
+HMS,Inverness,465
+HST,Partick,67260
+HLF,Glasgow Queen Street,37780
+HLE,Glasgow Central,59319
+HLW,Glasgow Central,55373
+HLY,Glasgow Central,54655
+HOZ,Glasgow Central,21242
+HNT,Aberdeen,15733
+HYN,Glasgow Central,114082
+INS,Aberdeen,20188
+IGD,Inverness,6263
+ING,Dundee,5022
+INK,Edinburgh,276475
+INP,Glasgow Central,25561
+INV,Edinburgh,89002
+IVA,Inverness,13143
+INH,Inverness,79
+INR,Aberdeen,130886
+IRV,Glasgow Central,168752
+JHN,Glasgow Central,356555
+JOR,Glasgow Central,43660
+KEH,Aberdeen,17755
+KVD,Glasgow Queen Street,16944
+KNS,Glasgow Central,50944
+KIL,Helmsdale,54
+KMK,Glasgow Central,126708
+KLM,Glasgow Central,26849
+KPT,Glasgow Queen Street,10236
+KWN,Glasgow Central,208135
+KBC,Inverness,55
+KGH,Edinburgh,22479
+KGP,Glasgow Central,61415
+KGE,Edinburgh,9223
+KIN,Inverness,5575
+KTR,Aberdeen,49408
+KDY,Edinburgh,189795
+KRK,Dumfries,2073
+KKH,Glasgow Central,15442
+KKN,Edinburgh,20395
+KWD,Glasgow Central,26144
+KYL,Inverness,11927
+LDY,Edinburgh,17538
+LRG,Inverness,894
+LNK,Glasgow Central,78285
+LGB,Glasgow Central,14825
+LGS,Glasgow Central,82043
+LBT,Glasgow Queen Street,160153
+LAR,Glasgow Central,75156
+LRH,Glasgow Central,56420
+LAU,Aberdeen,22116
+LNZ,Glasgow Queen Street,238375
+LEU,Haymarket,27652
+LEV,Edinburgh,53915
+LIN,Edinburgh,272559
+LSN,Edinburgh,287554
+LVG,Edinburgh,103447
+LHA,Oban,1870
+LHE,Glenfinnan,1004
+LCL,Fort William,510
+LCS,Mallaig,82
+LCG,Edinburgh,14349
+LCC,Dingwall,89
+LHW,Glasgow Central,36988
+LOC,Edinburgh,33357
+LND,Edinburgh,79823
+MLG,Fort William,29134
+MNC,Edinburgh,57845
+MYH,Glasgow Queen Street,21513
+MAX,Glasgow Central,41656
+MAY,Ayr,8578
+MEY,Glasgow Central,18012
+MIN,Glasgow Central,47287
+MLN,Glasgow Queen Street,117174
+MON,Dundee,10485
+MTS,Aberdeen,38276
+MRR,Fort William,681
+MPK,Glasgow Central,43265
+MTH,Glasgow Central,185809
+MFL,Glasgow Central,378482
+MTV,Glasgow Central,12752
+MOO,Inverness,17662
+MUI,Glasgow Central,118637
+MUB,Edinburgh,161732
+NRN,Inverness,42986
+NEI,Glasgow Central,77160
+NCK,Kilmarnock,2988
+NEW,Edinburgh,88398
+NTN,Glasgow Central,156240
+NOA,Glasgow Central,14660
+NEG,Edinburgh,52606
+NWR,Inverness,1331
+NIT,Glasgow Central,40721
+NBW,Edinburgh,218341
+NQU,Edinburgh,34272
+OBN,Glasgow Queen Street,33821
+PCN,Glasgow Central,100434
+PYG,Glasgow Central,757647
+PYJ,Glasgow Central,22355
+PTK,Glasgow Central,150545
+PTT,Glasgow Central,130212
+PTH,Dundee,84021
+PIT,Edinburgh,13591
+PLK,Kyle Of Lochalsh,2090
+PWE,Glasgow Central,116005
+PWW,Glasgow Central,96342
+PLE,Glasgow Central,105844
+PLW,Glasgow Central,48485
+PMT,Edinburgh,156061
+PTG,Glasgow Central,91655
+PLN,Aberdeen,23986
+PPK,Glasgow Queen Street,25228
+PST,Edinburgh,101343
+PRA,Glasgow Central,17764
+PTW,Glasgow Central,81187
+PTL,Glasgow Central,55939
+QPK,Glasgow Central,222193
+RAN,Corrour,1152
+RTN,Glasgow Queen Street,8087
+RSN,Edinburgh,8008
+RRN,Glasgow Queen Street,89680
+ROG,Inverness,239
+ROS,Edinburgh,58756
+RYB,Corrour,399
+RUT,Glasgow Central,151878
+SLT,Glasgow Central,60960
+SQH,Dumfries,3602
+SCT,Thurso,42
+SCH,Glasgow Central,54883
+SFI,Edinburgh,17229
+SHL,Glasgow Central,44189
+SLS,Glasgow Queen Street,148140
+SDM,Glasgow Central,33748
+SHS,Glasgow Central,41692
+SIN,Glasgow Queen Street,25628
+SLA,Edinburgh,12552
+SGL,Edinburgh,43054
+SBR,Glasgow Central,695
+SPR,Glasgow Queen Street,66241
+SPF,Edinburgh,131
+SPS,Glasgow Queen Street,96108
+STV,Glasgow Central,22822
+STT,Glasgow Central,78904
+STG,Glasgow Queen Street,323578
+STN,Aberdeen,124043
+SOI,Edinburgh,22183
+STR,Glasgow Central,6651
+STC,Inverness,1406
+STF,Inverness,174
+SUM,Glasgow Queen Street,40776
+TAI,Inverness,5316
+TAY,Oban,17291
+THB,Glasgow Central,66819
+THT,Glasgow Central,4572
+THS,Inverness,7666
+TRN,Glasgow Central,109487
+TUL,Corrour,668
+TWB,Edinburgh,144184
+TYL,Oban,597
+UDD,Glasgow Central,232288
+UHA,Edinburgh,144769
+UTY,Oban,586
+WAF,Edinburgh,130894
+WMS,Glasgow Central,58965
+WCL,Edinburgh,39360
+WKB,Glasgow Central,30766
+WTA,Edinburgh,14618
+WES,Glasgow Queen Street,81313
+WFF,Glasgow Central,39642
+WNL,Glasgow Central,9688
+WCR,Glasgow Central,122874
+WCK,Inverness,2649
+WLM,Glasgow Central,95503
+WSH,Glasgow Central,131554
+WDL,Glasgow Central,9357
+YOK,Glasgow Central,22304

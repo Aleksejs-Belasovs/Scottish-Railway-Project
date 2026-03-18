@@ -1,0 +1,6 @@
+flask
+pandas
+folium
+requests
+gunicorn
+python-dotenv
