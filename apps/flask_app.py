@@ -609,8 +609,13 @@ def live_trains(crs):
     return jsonify({"station": crs, "departures": departures[:5], "arrivals": arrivals[:5]})
 
 
-@app.route('/')
-def index():
+_cached_index_html = None
+_cached_map_render = None
+
+def _build_map():
+    global _cached_index_html, _cached_map_render
+    if _cached_index_html:
+        return
     center_lat = (55.9533 + 55.8642) / 2
     center_lon = (-3.1883 + -4.2518) / 2
 
@@ -787,12 +792,18 @@ def index():
                     for _, r in joined_data.iterrows()]
     stations_json = json.dumps(station_list)
 
-    # Cache the rendered map HTML for the /map endpoint
-    global _cached_map_html
-    _cached_map_html = station_map.get_root().render()
+    # Cache both the map render and the index page
+    _cached_map_render = station_map.get_root().render()
 
     map_html = '<iframe src="/map" style="width:100%;height:100%;border:none;" allowfullscreen></iframe>'
-    return _build_page_html(map_html, stations_json)
+    _cached_index_html = _build_page_html(map_html, stations_json)
+
+
+@app.route('/')
+def index():
+    if not _cached_index_html:
+        _build_map()
+    return _cached_index_html
 
 
 # ===================== JavaScript / CSS constants =====================
@@ -997,14 +1008,22 @@ _STATION_CSS = """
 """
 
 
-_cached_map_html = ""
-
 @app.route('/map')
 def map_page():
     """Serve the folium map as a standalone page for the iframe."""
-    if not _cached_map_html:
-        index()  # trigger map build if not yet cached
-    return _cached_map_html
+    if not _cached_map_render:
+        _build_map()
+    from flask import request, make_response
+    import gzip as _gzip
+    if 'gzip' in request.headers.get('Accept-Encoding', ''):
+        compressed = _gzip.compress(_cached_map_render.encode('utf-8'), compresslevel=6)
+        resp = make_response(compressed)
+        resp.headers['Content-Encoding'] = 'gzip'
+        resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+        resp.headers['Content-Length'] = len(compressed)
+        resp.headers['Cache-Control'] = 'public, max-age=300'
+        return resp
+    return _cached_map_render
 
 
 def _build_page_html(map_html, stations_json):
