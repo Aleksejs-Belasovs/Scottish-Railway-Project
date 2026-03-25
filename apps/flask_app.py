@@ -974,12 +974,39 @@ function showTrainDetail(rid, crs) {
         h += '<span style="font-size:10px;color:' + txtCol + ';font-weight:' + fw + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + st.name;
         if (st.cancelled) h += ' <span style="color:#d7191c;font-size:8px;font-weight:700;">CANC</span>';
         h += '</span>';
-        if (timeStr) {
-            var timeCol = '#888';
-            if (st.at && st.at !== '' && st.at !== 'On time') timeCol = '#4CAF50';
-            if (st.cancelled) timeCol = '#d7191c';
-            if (st.current) timeCol = '#0D47A1';
-            h += '<span style="font-size:9px;color:' + timeCol + ';font-weight:' + (st.current ? '700' : '400') + ';margin-left:6px;white-space:nowrap;">' + timeStr + '</span>';
+        if (st.st || st.et || st.at) {
+            var scheduled = st.st || '';
+            var status = '';
+            var statusCol = '#888';
+            if (st.cancelled) {
+                status = 'Cancelled';
+                statusCol = '#d7191c';
+            } else if (st.at && st.at !== '') {
+                if (st.at === 'On time' || st.at === st.st) {
+                    status = 'On time';
+                    statusCol = '#1a9641';
+                } else {
+                    status = st.at;
+                    statusCol = '#4CAF50';
+                }
+            } else if (st.et && st.et !== '') {
+                if (st.et === 'On time' || st.et === st.st) {
+                    status = 'On time';
+                    statusCol = '#1a9641';
+                } else if (st.et === 'Delayed' || st.et === 'Cancelled') {
+                    status = st.et;
+                    statusCol = st.et === 'Cancelled' ? '#d7191c' : '#f4a742';
+                } else {
+                    /* Estimated time differs from scheduled = delay */
+                    status = 'Exp ' + st.et;
+                    statusCol = '#f4a742';
+                }
+            }
+            if (st.current) statusCol = '#0D47A1';
+            var timeParts = '';
+            if (scheduled) timeParts += '<span style="font-weight:' + (st.current ? '700' : '500') + ';">' + scheduled + '</span>';
+            if (status) timeParts += ' <span style="color:' + statusCol + ';font-weight:600;font-size:8px;">(' + status + ')</span>';
+            if (timeParts) h += '<span style="font-size:9px;color:' + (st.current ? '#0D47A1' : '#555') + ';margin-left:6px;white-space:nowrap;">' + timeParts + '</span>';
         }
         h += '</div></div>';
     });
@@ -1171,12 +1198,39 @@ function buildTrainDetailHTML(d, crs) {
         h += '<span style="font-size:10px;color:' + txtCol + ';font-weight:' + fw + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + st.name;
         if (st.cancelled) h += ' <span style="color:#d7191c;font-size:8px;font-weight:700;">CANC</span>';
         h += '</span>';
-        if (timeStr) {
-            var timeCol = '#888';
-            if (st.at && st.at !== '' && st.at !== 'On time') timeCol = '#4CAF50';
-            if (st.cancelled) timeCol = '#d7191c';
-            if (st.current) timeCol = '#0D47A1';
-            h += '<span style="font-size:9px;color:' + timeCol + ';font-weight:' + (st.current ? '700' : '400') + ';margin-left:6px;white-space:nowrap;">' + timeStr + '</span>';
+        if (st.st || st.et || st.at) {
+            var scheduled = st.st || '';
+            var status = '';
+            var statusCol = '#888';
+            if (st.cancelled) {
+                status = 'Cancelled';
+                statusCol = '#d7191c';
+            } else if (st.at && st.at !== '') {
+                if (st.at === 'On time' || st.at === st.st) {
+                    status = 'On time';
+                    statusCol = '#1a9641';
+                } else {
+                    status = st.at;
+                    statusCol = '#4CAF50';
+                }
+            } else if (st.et && st.et !== '') {
+                if (st.et === 'On time' || st.et === st.st) {
+                    status = 'On time';
+                    statusCol = '#1a9641';
+                } else if (st.et === 'Delayed' || st.et === 'Cancelled') {
+                    status = st.et;
+                    statusCol = st.et === 'Cancelled' ? '#d7191c' : '#f4a742';
+                } else {
+                    /* Estimated time differs from scheduled = delay */
+                    status = 'Exp ' + st.et;
+                    statusCol = '#f4a742';
+                }
+            }
+            if (st.current) statusCol = '#0D47A1';
+            var timeParts = '';
+            if (scheduled) timeParts += '<span style="font-weight:' + (st.current ? '700' : '500') + ';">' + scheduled + '</span>';
+            if (status) timeParts += ' <span style="color:' + statusCol + ';font-weight:600;font-size:8px;">(' + status + ')</span>';
+            if (timeParts) h += '<span style="font-size:9px;color:' + (st.current ? '#0D47A1' : '#555') + ';margin-left:6px;white-space:nowrap;">' + timeParts + '</span>';
         }
         h += '</div></div>';
     });
@@ -1536,6 +1590,9 @@ def _build_page_html(map_html, stations_json):
         .panel-section {{
             padding:16px 20px; border-bottom:1px solid #f0f0f0;
         }}
+        .panel-section-spark {{
+            padding:12px 12px; 
+        }}
         .panel-section-title {{
             font-size:11px; font-weight:600; text-transform:uppercase;
             letter-spacing:0.8px; color:#888; margin-bottom:10px;
@@ -1695,18 +1752,18 @@ def _build_page_html(map_html, stations_json):
                     <div class="panel-section-title">Station Information</div>
                     <div id="panel-stats"></div>
                 </div>
-                <div class="panel-section">
+                <div class="panel-section panel-section-spark">
                     <div class="panel-section-title">Punctuality Trend</div>
-                    <div style="position:relative;">
-                        <svg id="panel-svg-punct" width="100%%" height="60" style="display:block;"></svg>
+                    <div style="position:relative;margin:0 -8px;">
+                        <svg id="panel-svg-punct" width="100%%" height="70" style="display:block;"></svg>
                         <div class="spark-tooltip panel-spark-tip" style="display:none;position:absolute;top:-6px;pointer-events:none;background:rgba(0,0,0,0.8);color:#fff;font-size:10px;padding:3px 6px;border-radius:4px;white-space:nowrap;z-index:5;transform:translateX(-50%);"></div>
                         <div class="spark-crosshair panel-spark-cross" style="display:none;position:absolute;top:0;width:1px;height:100%%;background:rgba(0,0,0,0.2);pointer-events:none;z-index:4;"></div>
                     </div>
                 </div>
-                <div class="panel-section">
+                <div class="panel-section panel-section-spark">
                     <div class="panel-section-title">Cancellation Trend</div>
-                    <div style="position:relative;">
-                        <svg id="panel-svg-cancel" width="100%%" height="60" style="display:block;"></svg>
+                    <div style="position:relative;margin:0 -8px;">
+                        <svg id="panel-svg-cancel" width="100%%" height="70" style="display:block;"></svg>
                         <div class="spark-tooltip panel-spark-tip" style="display:none;position:absolute;top:-6px;pointer-events:none;background:rgba(0,0,0,0.8);color:#fff;font-size:10px;padding:3px 6px;border-radius:4px;white-space:nowrap;z-index:5;transform:translateX(-50%);"></div>
                         <div class="spark-crosshair panel-spark-cross" style="display:none;position:absolute;top:0;width:1px;height:100%%;background:rgba(0,0,0,0.2);pointer-events:none;z-index:4;"></div>
                     </div>
@@ -1754,7 +1811,13 @@ def _build_page_html(map_html, stations_json):
         if (!svg || !valuesStr) {{ if(svg) svg.innerHTML='<text x="50%%" y="50%%" text-anchor="middle" fill="#ccc" font-size="11">No data</text>'; return; }}
         var vals = valuesStr.split('|').map(function(v) {{ return v === '' ? null : parseFloat(v); }});
         var labels = labelsStr ? labelsStr.split('|') : [];
-        var w = svg.getBoundingClientRect().width || 320, h = parseInt(svg.getAttribute('height')) || 60;
+        var container = svg.parentElement;
+        var w = container ? container.getBoundingClientRect().width : 0;
+        if (w < 10) w = svg.getBoundingClientRect().width;
+        if (w < 10) w = 320;
+        var h = parseInt(svg.getAttribute('height')) || 60;
+        svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+        svg.style.width = '100%%';
         var valid = vals.filter(function(v) {{ return v !== null; }});
         if (!valid.length) {{ svg.innerHTML = '<text x="50%%" y="50%%" text-anchor="middle" fill="#ccc" font-size="11">No data</text>'; return; }}
         var mn = Math.min.apply(null, valid), mx = Math.max.apply(null, valid);
@@ -1820,9 +1883,17 @@ def _build_page_html(map_html, stations_json):
             sh += '<div class="panel-stat-row"><span class="panel-stat-label">Operator</span><span class="panel-stat-value">' + e.data.operator + '</span></div>';
             document.getElementById('panel-stats').innerHTML = sh;
 
-            document.getElementById('station-panel').classList.add('open');
+            var panel = document.getElementById('station-panel');
+            panel.classList.add('open');
             document.getElementById('panel-overlay').classList.add('open');
-            setTimeout(renderPanelSparklines, 100);
+            /* Render sparklines after the slide-in transition completes */
+            function _onPanelOpen() {{
+                panel.removeEventListener('transitionend', _onPanelOpen);
+                renderPanelSparklines();
+            }}
+            panel.addEventListener('transitionend', _onPanelOpen);
+            /* Fallback in case transitionend doesn't fire */
+            setTimeout(renderPanelSparklines, 450);
             document.getElementById('panel-live-content').innerHTML = '<div style="color:#999;font-size:12px;text-align:center;padding:12px 0;">Click below to fetch live departures &amp; arrivals.</div>';
             var lb = document.getElementById('panel-live-btn'); lb.disabled = false; lb.style.opacity = '1'; lb.style.display = ''; lb.textContent = '🚆 Load Live Trains';
         }}
