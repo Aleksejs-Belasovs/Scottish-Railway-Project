@@ -704,7 +704,7 @@ def _build_map():
                 <div style="font-size:11px;opacity:0.85;margin-top:1px;">Operator: {op}</div>
             </div>
             <div class="popup-body" style="display:flex;background:white;">
-                <div class="popup-left" style="padding:10px 12px;min-width:340px;max-width:380px;flex-shrink:0;">
+                <div class="popup-left" style="padding:10px 12px;width:340px;flex-shrink:0;">
                     <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #eee;">
                         <span style="color:#666;font-size:12px;">Annual Entries & Exits</span>
                         <span style="font-weight:600;font-size:12px;color:{usage_colour};">{total_fmt}</span>
@@ -775,10 +775,10 @@ def _build_map():
     # Mouse position
     MousePosition(position='bottomleft', separator=' | ', prefix='Coords:', num_digits=4).add_to(station_map)
 
-    # Layer control & fullscreen
-    folium.LayerControl(collapsed=True).add_to(station_map)
-    folium.plugins.Fullscreen(position="topright", title="Fullscreen",
-                              title_cancel="Exit Fullscreen", force_separate_button=True).add_to(station_map)
+    # Layer control & fullscreen (removed)
+    # folium.LayerControl(collapsed=True).add_to(station_map)
+    # folium.plugins.Fullscreen(position="topright", title="Fullscreen",
+    #                           title_cancel="Exit Fullscreen", force_separate_button=True).add_to(station_map)
 
     # Inject JS/CSS into the Folium map iframe
     station_map.get_root().html.add_child(Element(_LIVE_TRAINS_JS))
@@ -816,8 +816,8 @@ function loadLiveTrains(btn, crs) {
     container.style.display = 'block';
     container.innerHTML = '<div style="text-align:center;padding:16px 8px;color:#999;font-size:12px;">Loading...</div>';
     btn.disabled = true; btn.style.opacity = '0.5';
-    try { var pw = btn.closest('.leaflet-popup'); if (pw) { var cw = pw.querySelector('.leaflet-popup-content'); if (cw) cw.style.width = 'auto'; } } catch(e) {}
 
+    try { var pw = btn.closest('.leaflet-popup'); if (pw) { var cw = pw.querySelector('.leaflet-popup-content'); if (cw) cw.style.width = 'auto'; } } catch(e) {}
     fetch('/api/live/' + crs)
         .then(function(r) { return r.json(); })
         .then(function(data) {
@@ -1015,6 +1015,13 @@ _STATION_CSS = """
     top:6px !important; right:6px !important; padding:0 !important; margin:0 !important;
     line-height:1 !important; transition:background 0.2s ease !important; z-index:10 !important; }
 .leaflet-popup-close-button:hover { background:rgba(0,0,0,0.6) !important; color:white !important; }
+@media (max-width: 480px) {
+    .leaflet-popup-content-wrapper { max-width:92vw !important; }
+    .leaflet-popup-content { max-width:92vw !important; }
+    .popup-body { flex-direction:column !important; }
+    .popup-left { min-width:0 !important; max-width:100%% !important; width:100%% !important; padding:8px 10px !important; }
+    .popup-right { border-left:none !important; border-top:1px solid #eee !important; min-width:0 !important; max-width:100%% !important; width:100%% !important; }
+}
 </style>
 """
 
@@ -1116,7 +1123,28 @@ def _build_page_html(map_html, stations_json):
         .nav-btn:hover {{ color:white; background:rgba(255,255,255,0.08); }}
 
         .map-container {{ flex:1; min-height:0; position:relative; overflow:hidden; }}
-        .map-container iframe, .map-container .folium-map {{ width:100% !important; height:100% !important; }}
+        .map-container iframe, .map-container .folium-map {{ width:100%% !important; height:100%% !important; }}
+
+        /* ---- Mobile responsive ---- */
+        @media (max-width: 600px) {{
+            .header {{
+                height:auto; min-height:48px; padding:8px 12px;
+                flex-wrap:wrap; gap:8px; justify-content:center;
+            }}
+            .header-left h1 {{ font-size:13px; }}
+            .header-centre {{
+                order:3; width:100%%; flex-wrap:wrap; gap:8px; justify-content:center;
+            }}
+            .search-wrap {{ width:100%%; }}
+            .search-wrap input {{ width:100%% !important; }}
+            .search-wrap input:focus {{ width:100%% !important; }}
+            #search-results {{ width:100%%; }}
+            .divider {{ display:none; }}
+            .colour-wrap label {{ display:none; }}
+            .legend {{ flex-wrap:wrap; justify-content:center; gap:6px; font-size:10px; }}
+            .header-right {{ order:2; }}
+            .nav-btn {{ font-size:11px; padding:5px 10px; }}
+        }}
     </style>
 </head>
 <body>
@@ -1305,6 +1333,28 @@ def about():
         .charity-note { margin-top:16px; padding:14px 18px; background:#e8f5e9; border-radius:8px; font-size:13px; color:#2e7d32; line-height:1.5; }
         .charity-note strong { font-weight:600; }
         .footer-note { text-align:center; padding:24px; font-size:12px; color:#999; }
+
+        /* ---- Mobile responsive ---- */
+        @media (max-width: 600px) {
+            .header { padding:0 12px; height:48px; }
+            .header h1 { font-size:13px; }
+            .nav-links a { font-size:11px; padding:5px 10px; }
+            .about-container { padding:24px 14px 48px; }
+            .profile-photo, .profile-photo-fallback { width:110px; height:110px; }
+            .profile-name { font-size:22px; }
+            .profile-title { font-size:14px; }
+            .section { padding:18px 16px; border-radius:10px; }
+            .section-title { font-size:16px; }
+            .timeline { padding-left:16px; }
+            .timeline li { padding-left:14px; margin-bottom:20px; }
+            .timeline .role { font-size:14px; }
+            .timeline .desc ul { margin-left:10px; }
+            .linkedin-btn, .email-btn { padding:8px 16px; font-size:13px; }
+            .skills-grid { gap:6px; }
+            .skill-tag { padding:5px 10px; font-size:11px; }
+            .project-highlight { padding:14px 16px; }
+            .lang-grid { gap:8px; }
+        }
     </style>
 </head>
 <body>
