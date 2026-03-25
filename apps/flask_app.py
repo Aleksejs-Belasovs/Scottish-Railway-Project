@@ -925,6 +925,7 @@ function showTrainDetail(rid, crs) {
     if(window.event) window.event.stopPropagation();
     var container = document.getElementById('live-' + crs);
     if (!container) return;
+    if (!container.style.height || container.style.height === '') container.style.height = container.offsetHeight + 'px';
     var d = _routeData[rid];
     if (!d) return;
 
