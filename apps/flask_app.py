@@ -574,7 +574,7 @@ def format_journeys(j):
 
 
 # ------------------- Live Train Data API -------------------
-RAIL_API_URL = "https://api1.raildata.org.uk/1010-live-arrival-and-departure-boards-arr-and-dep1_1/LDBWS/api/20220120/GetArrivalDepartureBoard"
+RAIL_API_URL = "https://api1.raildata.org.uk/1010-live-arrival-and-departure-boards-arr-and-dep1_1/LDBWS/api/20220120/GetArrDepBoardWithDetails"
 RAIL_API_KEY = os.environ.get("RAIL_API_KEY", "")
 
 
@@ -600,13 +600,33 @@ def live_trains(crs):
         destination = s.get("destination", [{}])[0].get("locationName", "Unknown")
         platform = s.get("platform", "TBD")
         operator = s.get("operator", "")
+        sid = s.get("serviceID", "")
+
+        # Extract calling points from WithDetails response
+        prev_pts, sub_pts = [], []
+        for cp_list in (s.get("previousCallingPoints") or []):
+            for cp in (cp_list.get("callingPoint") or []) if isinstance(cp_list, dict) else []:
+                prev_pts.append({"name": cp.get("locationName",""), "st": cp.get("st",""),
+                                 "et": cp.get("et",""), "at": cp.get("at",""),
+                                 "cancelled": cp.get("isCancelled", False)})
+        for cp_list in (s.get("subsequentCallingPoints") or []):
+            for cp in (cp_list.get("callingPoint") or []) if isinstance(cp_list, dict) else []:
+                sub_pts.append({"name": cp.get("locationName",""), "st": cp.get("st",""),
+                                "et": cp.get("et",""), "at": cp.get("at",""),
+                                "cancelled": cp.get("isCancelled", False)})
+
+        base = {"platform": platform, "operator": operator, "serviceID": sid,
+                "previous": prev_pts, "subsequent": sub_pts}
         if s.get("std"):
-            departures.append({"time": s["std"], "expected": s.get("etd", ""),
-                               "destination": destination, "platform": platform, "operator": operator})
+            departures.append({**base, "time": s["std"], "expected": s.get("etd", ""),
+                               "destination": destination})
         if s.get("sta"):
-            arrivals.append({"time": s["sta"], "expected": s.get("eta", ""),
-                             "origin": origin, "platform": platform, "operator": operator})
-    return jsonify({"station": crs, "departures": departures[:5], "arrivals": arrivals[:5]})
+            arrivals.append({**base, "time": s["sta"], "expected": s.get("eta", ""),
+                             "origin": origin})
+    station_name = data.get("locationName", crs)
+    return jsonify({"station": station_name, "departures": departures[:5], "arrivals": arrivals[:5]})
+
+
 
 
 _cached_index_html = None
@@ -810,6 +830,32 @@ def index():
 
 _LIVE_TRAINS_JS = """
 <script>
+var _routeData = {};
+var _liveCache = {};
+
+/* Prevent popup closing when clicking inside it */
+(function(){
+    function stopLeafletClose() {
+        /* Find Leaflet map and disable closeOnClick */
+        for (var k in window) {
+            try {
+                if (window[k] && typeof window[k].getZoom === 'function' && window[k]._container) {
+                    window[k].options.closePopupOnClick = false;
+                    break;
+                }
+            } catch(e) {}
+        }
+        /* Block click events inside popups from reaching the map */
+        document.addEventListener('click', function(e) {
+            if (e.target.closest && e.target.closest('.leaflet-popup-content')) {
+                e.stopPropagation();
+            }
+        }, false);
+    }
+    if (document.readyState === 'complete') stopLeafletClose();
+    else window.addEventListener('load', stopLeafletClose);
+})();
+
 function loadLiveTrains(btn, crs) {
     var container = document.getElementById('live-' + crs);
     if (!container) return;
@@ -818,46 +864,156 @@ function loadLiveTrains(btn, crs) {
     btn.disabled = true; btn.style.opacity = '0.5';
 
     try { var pw = btn.closest('.leaflet-popup'); if (pw) { var cw = pw.querySelector('.leaflet-popup-content'); if (cw) cw.style.width = 'auto'; } } catch(e) {}
+
     fetch('/api/live/' + crs)
         .then(function(r) { return r.json(); })
         .then(function(data) {
             if (data.error) { container.innerHTML = '<div style="color:#d7191c;font-size:11px;padding:4px;">Error: ' + data.error + '</div>'; btn.disabled = false; btn.style.opacity = '1'; return; }
-            var html = '<div style="font-size:13px;font-weight:700;color:#0D47A1;margin-bottom:6px;">Live Trains</div>';
-            if (data.departures && data.departures.length) {
-                html += '<div style="font-size:11px;font-weight:700;color:#1565C0;padding:4px 0 2px;">Departures</div>';
-                html += '<table style="width:100%;font-size:10px;border-collapse:collapse;"><tr style="color:#999;"><td style="padding:2px 3px;">Time</td><td style="padding:2px 3px;">To</td><td style="padding:2px 3px;">Plat</td><td style="padding:2px 3px;">Exp</td></tr>';
-                data.departures.forEach(function(d) {
-                    var sc = d.expected === 'On time' ? '#1a9641' : (d.expected === 'Cancelled' ? '#d7191c' : '#f4a742');
-                    html += '<tr><td style="padding:2px 3px;font-weight:600;">' + d.time + '</td><td style="padding:2px 3px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + d.destination + '</td><td style="padding:2px 3px;text-align:center;">' + d.platform + '</td><td style="padding:2px 3px;color:' + sc + ';font-weight:600;font-size:9px;">' + d.expected + '</td></tr>';
-                });
-                html += '</table>';
-            }
-            if (data.arrivals && data.arrivals.length) {
-                html += '<div style="font-size:11px;font-weight:700;color:#4CAF50;padding:4px 0 2px;border-top:1px solid #eee;margin-top:4px;">Arrivals</div>';
-                html += '<table style="width:100%;font-size:10px;border-collapse:collapse;"><tr style="color:#999;"><td style="padding:2px 3px;">Time</td><td style="padding:2px 3px;">From</td><td style="padding:2px 3px;">Plat</td><td style="padding:2px 3px;">Exp</td></tr>';
-                data.arrivals.forEach(function(a) {
-                    var sc = a.expected === 'On time' ? '#1a9641' : (a.expected === 'Cancelled' ? '#d7191c' : '#f4a742');
-                    html += '<tr><td style="padding:2px 3px;font-weight:600;">' + a.time + '</td><td style="padding:2px 3px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + a.origin + '</td><td style="padding:2px 3px;text-align:center;">' + a.platform + '</td><td style="padding:2px 3px;color:' + sc + ';font-weight:600;font-size:9px;">' + a.expected + '</td></tr>';
-                });
-                html += '</table>';
-            }
-            if (!data.departures.length && !data.arrivals.length) html += '<div style="color:#999;font-size:11px;padding:4px;">No services found.</div>';
-            container.innerHTML = html;
+
+            _liveCache[crs] = data;
+            _routeData = {};
+
+            if (data.departures) data.departures.forEach(function(d, idx) {
+                var rid = 'dep_' + idx;
+                _routeData[rid] = {type:'dep', operator: d.operator, previous: d.previous || [], subsequent: d.subsequent || [], station: data.station, time: d.time, expected: d.expected, destination: d.destination, origin: '', platform: d.platform, serviceID: d.serviceID};
+            });
+            if (data.arrivals) data.arrivals.forEach(function(a, idx) {
+                var rid = 'arr_' + idx;
+                _routeData[rid] = {type:'arr', operator: a.operator, previous: a.previous || [], subsequent: a.subsequent || [], station: data.station, time: a.time, expected: a.expected, destination: '', origin: a.origin, platform: a.platform, serviceID: a.serviceID};
+            });
+
+            renderTrainList(container, data, crs);
             btn.textContent = '\u21bb Refresh'; btn.disabled = false; btn.style.opacity = '1';
-            try { var mapObj = null; for (var k in window) { try { if (window[k] && typeof window[k].getZoom === 'function' && window[k]._container) { mapObj = window[k]; break; } } catch(e) {} } if (mapObj) setTimeout(function() { mapObj.invalidateSize(); var ll = mapObj._popup && mapObj._popup.getLatLng(); if (ll) {
-                        var popup = mapObj._popup;
-                        if (popup && popup._container) {
-                            var pH = popup._container.offsetHeight || 300;
-                            var pt = mapObj.latLngToContainerPoint(ll);
-                            pt.y -= pH / 2 + 20;
-                            var newLL = mapObj.containerPointToLatLng(pt);
-                            mapObj.panTo(newLL, {animate: true});
-                        } else {
-                            mapObj.panTo(ll);
-                        }
-                    } }, 120); } catch(e) {}
+            _panPopup();
         })
         .catch(function() { container.innerHTML = '<div style="color:#d7191c;font-size:11px;padding:4px;">Failed to load data.</div>'; btn.disabled = false; btn.style.opacity = '1'; });
+}
+
+function _panPopup() {
+    try { var mapObj = null; for (var k in window) { try { if (window[k] && typeof window[k].getZoom === 'function' && window[k]._container) { mapObj = window[k]; break; } } catch(e) {} }
+    if (mapObj) setTimeout(function() { mapObj.invalidateSize(); var ll = mapObj._popup && mapObj._popup.getLatLng(); if (ll) { var popup = mapObj._popup; if (popup && popup._container) { var pH = popup._container.offsetHeight || 300; var pt = mapObj.latLngToContainerPoint(ll); pt.y -= pH / 2 + 20; var newLL = mapObj.containerPointToLatLng(pt); mapObj.panTo(newLL, {animate: true}); } else { mapObj.panTo(ll); } } }, 120); } catch(e) {}
+}
+
+function renderTrainList(container, data, crs) {
+    var html = '<div style="font-size:13px;font-weight:700;color:#0D47A1;margin-bottom:6px;">\U0001f682 Live Trains</div>';
+    if (data.departures && data.departures.length) {
+        html += '<div style="font-size:11px;font-weight:700;color:#1565C0;padding:4px 0 2px;">Departures</div>';
+        html += '<table style="width:100%;font-size:10px;border-collapse:collapse;"><tr style="color:#999;"><td style="padding:2px 3px;">Time</td><td style="padding:2px 3px;">To</td><td style="padding:2px 3px;">Plat</td><td style="padding:2px 3px;">Exp</td></tr>';
+        data.departures.forEach(function(d, idx) {
+            var sc = d.expected === 'On time' ? '#1a9641' : (d.expected === 'Cancelled' ? '#d7191c' : '#f4a742');
+            var rid = 'dep_' + idx;
+            html += '<tr class="svc-row" onclick="showTrainDetail(\\'' + rid + '\\',\\'' + crs + '\\')" style="cursor:pointer;" title="Click for details"><td style="padding:3px;font-weight:600;">' + d.time + '</td><td style="padding:3px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + d.destination + '</td><td style="padding:3px;text-align:center;">' + d.platform + '</td><td style="padding:3px;color:' + sc + ';font-weight:600;font-size:9px;">' + d.expected + '</td></tr>';
+        });
+        html += '</table>';
+    }
+    if (data.arrivals && data.arrivals.length) {
+        html += '<div style="font-size:11px;font-weight:700;color:#4CAF50;padding:6px 0 2px;border-top:1px solid #eee;margin-top:4px;">Arrivals</div>';
+        html += '<table style="width:100%;font-size:10px;border-collapse:collapse;"><tr style="color:#999;"><td style="padding:2px 3px;">Time</td><td style="padding:2px 3px;">From</td><td style="padding:2px 3px;">Plat</td><td style="padding:2px 3px;">Exp</td></tr>';
+        data.arrivals.forEach(function(a, idx) {
+            var sc = a.expected === 'On time' ? '#1a9641' : (a.expected === 'Cancelled' ? '#d7191c' : '#f4a742');
+            var rid = 'arr_' + idx;
+            html += '<tr class="svc-row" onclick="showTrainDetail(\\'' + rid + '\\',\\'' + crs + '\\')" style="cursor:pointer;" title="Click for details"><td style="padding:3px;font-weight:600;">' + a.time + '</td><td style="padding:3px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + a.origin + '</td><td style="padding:3px;text-align:center;">' + a.platform + '</td><td style="padding:3px;color:' + sc + ';font-weight:600;font-size:9px;">' + a.expected + '</td></tr>';
+        });
+        html += '</table>';
+    }
+    if ((!data.departures || !data.departures.length) && (!data.arrivals || !data.arrivals.length)) html += '<div style="color:#999;font-size:11px;padding:4px;">No services found.</div>';
+    container.innerHTML = html;
+    container.onclick = function(e) { e.stopPropagation(); };
+}
+
+function showTrainDetail(rid, crs) {
+    if(window.event) window.event.stopPropagation();
+    var container = document.getElementById('live-' + crs);
+    if (!container) return;
+    var d = _routeData[rid];
+    if (!d) return;
+
+    var isDep = d.type === 'dep';
+    var heading = isDep ? (d.time + ' to ' + d.destination) : (d.time + ' from ' + d.origin);
+    var expColor = d.expected === 'On time' ? '#1a9641' : (d.expected === 'Cancelled' ? '#d7191c' : '#f4a742');
+
+    var h = '';
+    /* Back button */
+    h += '<div onclick="showTrainList(\\'' + crs + '\\')" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#1565C0;font-weight:600;margin-bottom:8px;padding:3px 0;">';
+    h += '<span style="font-size:14px;">\u2190</span> All trains</div>';
+
+    /* Header card */
+    h += '<div style="background:linear-gradient(135deg,#0D47A1,#1565C0);color:white;border-radius:8px;padding:10px 12px;margin-bottom:8px;">';
+    h += '<div style="font-size:13px;font-weight:700;margin-bottom:2px;">' + heading + '</div>';
+    h += '<div style="font-size:10px;opacity:0.9;">' + (d.operator || '') + '</div>';
+    h += '<div style="display:flex;gap:12px;margin-top:6px;font-size:10px;">';
+    h += '<div><span style="opacity:0.7;">Platform</span><br><strong style="font-size:13px;">' + (d.platform || 'TBD') + '</strong></div>';
+    h += '<div><span style="opacity:0.7;">Expected</span><br><strong style="font-size:13px;color:' + (d.expected === 'On time' ? '#81C784' : (d.expected === 'Cancelled' ? '#ef9a9a' : '#FFE082')) + ';">' + d.expected + '</strong></div>';
+    h += '</div></div>';
+
+    /* Calling points */
+    var stops = [];
+    if (d.previous && d.previous.length) {
+        d.previous.forEach(function(p) {
+            stops.push({name: p.name, st: p.st || '', et: p.et || '', at: p.at || '', passed: true, cancelled: p.cancelled});
+        });
+    }
+    stops.push({name: d.station || 'Here', st: d.time || '', et: '', at: '', passed: true, current: true});
+    if (d.subsequent && d.subsequent.length) {
+        d.subsequent.forEach(function(p) {
+            stops.push({name: p.name, st: p.st || '', et: p.et || '', at: p.at || '', passed: false, cancelled: p.cancelled});
+        });
+    }
+
+    h += '<div style="font-size:10px;font-weight:700;color:#333;margin-bottom:4px;">Calling Points (' + stops.length + ' stops)</div>';
+    h += '<div style="background:#f8f9fa;border-radius:6px;padding:6px 8px;">';
+
+    stops.forEach(function(st, i) {
+        var isLast = (i === stops.length - 1);
+        var dotCol = st.cancelled ? '#d7191c' : (st.current ? '#0D47A1' : (st.passed ? '#4CAF50' : '#90A4AE'));
+        var txtCol = st.cancelled ? '#d7191c' : (st.current ? '#0D47A1' : '#333');
+        var fw = st.current ? '700' : '400';
+        var bg = st.current ? '#E3F2FD' : 'transparent';
+        var lineCol = st.passed ? '#4CAF50' : '#ccc';
+        var dot = st.current ? '\u25C9' : '\u25CF';
+        var timeStr = st.at && st.at !== '' ? st.at : (st.et && st.et !== '' ? st.et : st.st);
+
+        h += '<div style="display:flex;align-items:stretch;' + (st.current ? 'background:#E3F2FD;margin:2px -4px;padding:2px 4px;border-radius:4px;' : '') + '">';
+        /* Left: dot + line */
+        h += '<div style="display:flex;flex-direction:column;align-items:center;width:16px;flex-shrink:0;">';
+        h += '<span style="color:' + dotCol + ';font-size:' + (st.current ? '12px' : '9px') + ';line-height:16px;">' + dot + '</span>';
+        if (!isLast) h += '<div style="width:2px;flex:1;min-height:8px;background:' + lineCol + ';"></div>';
+        h += '</div>';
+        /* Right: name + time */
+        h += '<div style="flex:1;min-width:0;padding-left:6px;display:flex;justify-content:space-between;align-items:center;line-height:16px;">';
+        h += '<span style="font-size:10px;color:' + txtCol + ';font-weight:' + fw + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + st.name;
+        if (st.cancelled) h += ' <span style="color:#d7191c;font-size:8px;font-weight:700;">CANC</span>';
+        h += '</span>';
+        if (timeStr) {
+            var timeCol = '#888';
+            if (st.at && st.at !== '' && st.at !== 'On time') timeCol = '#4CAF50';
+            if (st.cancelled) timeCol = '#d7191c';
+            if (st.current) timeCol = '#0D47A1';
+            h += '<span style="font-size:9px;color:' + timeCol + ';font-weight:' + (st.current ? '700' : '400') + ';margin-left:6px;white-space:nowrap;">' + timeStr + '</span>';
+        }
+        h += '</div></div>';
+    });
+    h += '</div>';
+
+    /* Service ID (subtle) */
+    if (d.serviceID) {
+        h += '<div style="font-size:8px;color:#bbb;margin-top:6px;text-align:right;">ID: ' + d.serviceID + '</div>';
+    }
+
+    container.innerHTML = h;
+    container.scrollTop = 0;
+    _panPopup();
+}
+
+function showTrainList(crs) {
+    if(window.event) window.event.stopPropagation();
+    var container = document.getElementById('live-' + crs);
+    if (!container) return;
+    var data = _liveCache[crs];
+    if (!data) return;
+    renderTrainList(container, data, crs);
+    container.scrollTop = 0;
+    _panPopup();
 }
 </script>
 """
@@ -1015,12 +1171,17 @@ _STATION_CSS = """
     top:6px !important; right:6px !important; padding:0 !important; margin:0 !important;
     line-height:1 !important; transition:background 0.2s ease !important; z-index:10 !important; }
 .leaflet-popup-close-button:hover { background:rgba(0,0,0,0.6) !important; color:white !important; }
+.svc-row[onclick] { transition:background 0.15s ease; }
+.svc-row[onclick]:hover { background:#e8f0fe; border-radius:2px; }
+.svc-row[onclick] { transition:background 0.15s ease; }
+.svc-row[onclick]:hover { background:#e8f0fe; border-radius:2px; }
 @media (max-width: 480px) {
-    .leaflet-popup-content-wrapper { max-width:92vw !important; }
-    .leaflet-popup-content { max-width:92vw !important; }
-    .popup-body { flex-direction:column !important; }
-    .popup-left { min-width:0 !important; max-width:100%% !important; width:100%% !important; padding:8px 10px !important; }
-    .popup-right { border-left:none !important; border-top:1px solid #eee !important; min-width:0 !important; max-width:100%% !important; width:100%% !important; }
+    .leaflet-popup-content-wrapper { min-width:88vw !important; max-width:92vw !important; }
+    .leaflet-popup-content { min-width:88vw !important; max-width:92vw !important; width:92vw !important; }
+    .station-popup { width:100% !important; }
+    .popup-body { flex-direction:column !important; width:100% !important; }
+    .popup-left { min-width:0 !important; max-width:100% !important; width:100% !important; padding:8px 10px !important; }
+    .popup-right { border-left:none !important; border-top:1px solid #eee !important; min-width:0 !important; max-width:100% !important; width:100% !important; max-height:260px !important; }
 }
 </style>
 """
