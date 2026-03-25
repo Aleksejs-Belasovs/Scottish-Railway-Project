@@ -717,38 +717,53 @@ def _build_map():
         tc = '|'.join(str(v) if v is not None else '' for v in perf['trend_cancellations']) if perf else ''
 
         popup_html = f"""
-        <div class="station-popup-mini" data-crs="{row['crsCode']}" data-name="{row['stationName']}" data-region="{row['region']}" data-operator="{op}"
-             data-usage-colour="{usage_colour}" data-punct-colour="{pc}" data-cancel-colour="{cc}"
-             data-total="{total_fmt}" data-dest="{dest}" data-top-route="{top_route_fmt}"
-             data-pl="{pl}" data-cl="{cl}" data-tp="{tp}" data-tc="{tc}" data-period-labels="{PERIOD_LABELS_PIPE}">
-            <div class="spm-header" style="background:{usage_colour};">
-                <div class="spm-name">{row['stationName']}</div>
-                <div class="spm-meta">{row['crsCode']} &#183; {row['region']}</div>
+        <div class="station-popup" style="font-family:'Segoe UI',Arial,sans-serif;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+            <div class="popup-header" data-usage-colour="{usage_colour}" data-punct-colour="{pc}" data-cancel-colour="{cc}" style="background:{usage_colour};color:white;padding:10px 12px;">
+                <div style="font-size:15px;font-weight:600;">{row['stationName']}</div>
+                <div style="font-size:11px;opacity:0.9;margin-top:2px;">Station Code: {row['crsCode']} &bull; {row['region']}</div>
+                <div style="font-size:11px;opacity:0.85;margin-top:1px;">Operator: {op}</div>
             </div>
-            <div class="spm-body">
-                <div class="spm-stats">
-                    <div class="spm-stat">
-                        <span class="spm-stat-val" style="color:{usage_colour};">{total_fmt}</span>
-                        <span class="spm-stat-lbl">passengers</span>
+            <div class="popup-body" style="display:flex;background:white;">
+                <div class="popup-left" style="padding:10px 12px;width:340px;flex-shrink:0;">
+                    <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #eee;">
+                        <span style="color:#666;font-size:12px;">Annual Entries & Exits</span>
+                        <span style="font-weight:600;font-size:12px;color:{usage_colour};">{total_fmt}</span>
                     </div>
-                    <div class="spm-divider"></div>
-                    <div class="spm-stat">
-                        <span class="spm-stat-val" style="color:{pc};">{pl}</span>
-                        <span class="spm-stat-lbl">on time</span>
+                    <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #eee;">
+                        <span style="color:#666;font-size:12px;">Top Route</span>
+                        <span style="font-weight:600;font-size:12px;">{dest} ({top_route_fmt})</span>
                     </div>
-                    <div class="spm-divider"></div>
-                    <div class="spm-stat">
-                        <span class="spm-stat-val" style="color:{cc};">{cl}</span>
-                        <span class="spm-stat-lbl">cancelled</span>
+                    <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #eee;">
+                        <span style="color:#666;font-size:12px;">Punctuality (On Time)</span>
+                        <span style="font-weight:600;font-size:12px;color:{pc};">{pl}</span>
                     </div>
+                    <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #eee;">
+                        <span style="color:#666;font-size:12px;">Cancellations</span>
+                        <span style="font-weight:600;font-size:12px;color:#d7191c;">{cl}</span>
+                    </div>
+                    <div style="margin-top:8px;padding:6px 0;border-bottom:1px solid #eee;position:relative;">
+                        <div style="font-size:11px;color:#666;margin-bottom:4px;">Punctuality Trend</div>
+                        <div class="spark-wrap" style="position:relative;">
+                            <svg class="sparkline-punct" data-values="{tp}" data-labels="{PERIOD_LABELS_PIPE}" width="100%" height="48" style="display:block;"></svg>
+                            <div class="spark-tooltip" style="display:none;position:absolute;top:-6px;pointer-events:none;background:rgba(0,0,0,0.8);color:#fff;font-size:10px;padding:3px 6px;border-radius:4px;white-space:nowrap;z-index:5;transform:translateX(-50%);"></div>
+                            <div class="spark-crosshair" style="display:none;position:absolute;top:0;width:1px;height:100%;background:rgba(0,0,0,0.2);pointer-events:none;z-index:4;"></div>
+                        </div>
+                    </div>
+                    <div style="margin-top:4px;padding:6px 0;border-bottom:1px solid #eee;position:relative;">
+                        <div style="font-size:11px;color:#666;margin-bottom:4px;">Cancellation Trend</div>
+                        <div class="spark-wrap" style="position:relative;">
+                            <svg class="sparkline-cancel" data-values="{tc}" data-labels="{PERIOD_LABELS_PIPE}" width="100%" height="48" style="display:block;"></svg>
+                            <div class="spark-tooltip" style="display:none;position:absolute;top:-6px;pointer-events:none;background:rgba(0,0,0,0.8);color:#fff;font-size:10px;padding:3px 6px;border-radius:4px;white-space:nowrap;z-index:5;transform:translateX(-50%);"></div>
+                            <div class="spark-crosshair" style="display:none;position:absolute;top:0;width:1px;height:100%;background:rgba(0,0,0,0.2);pointer-events:none;z-index:4;"></div>
+                        </div>
+                    </div>
+                    <button onclick="loadLiveTrains(this, '{row['crsCode']}')"
+                        style="margin-top:8px;width:100%;padding:7px;border:none;border-radius:5px;background:linear-gradient(135deg,#1565C0,#0D47A1);color:white;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity 0.2s;"
+                        onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                        &#128646; View Live Trains
+                    </button>
                 </div>
-                <div class="spm-route">
-                    <span class="spm-route-icon">&#8644;</span>
-                    <span class="spm-route-text">Top route: <strong>{dest}</strong> ({top_route_fmt})</span>
-                </div>
-                <button class="spm-btn" onclick="event.stopPropagation(); openStationPanel(this);">
-                    View details &amp; live trains &#8250;
-                </button>
+                <div id="live-{row['crsCode']}" class="popup-right" style="display:none;border-left:1px solid #eee;padding:10px 12px;min-width:240px;max-width:280px;max-height:380px;overflow-y:auto;"></div>
             </div>
         </div>
         """
@@ -770,7 +785,7 @@ def _build_map():
 
         marker = folium.Marker(
             location=[row['lat'], row['long']],
-            popup=folium.Popup(popup_html, max_width=300, max_height=400),
+            popup=folium.Popup(popup_html, max_width=640, max_height=500, autoPanPadding=[20, 60]),
             tooltip=folium.Tooltip(row['stationName'], style='font-family:Arial;font-size:12px;'),
             icon=folium.DivIcon(icon_size=(22, 22), icon_anchor=(11, 11), html=marker_icon_html, class_name=''),
         )
@@ -882,28 +897,24 @@ function _panPopup() {
 function renderTrainList(container, data, crs) {
     var html = '<div style="font-size:13px;font-weight:700;color:#0D47A1;margin-bottom:6px;">\U0001f682 Live Trains</div>';
     if (data.departures && data.departures.length) {
-        html += '<div style="flex:1;min-height:0;"><div style="font-size:11px;font-weight:700;color:#1565C0;padding:4px 0 2px;">Departures</div>';
-        html += '<table style="width:100%;font-size:10px;border-collapse:collapse;table-layout:fixed;"><colgroup><col style="width:18%"><col style="width:42%"><col style="width:16%"><col style="width:24%"></colgroup><tr style="color:#999;"><td style="padding:2px 3px;">Time</td><td style="padding:2px 3px;text-align:left;">To</td><td style="padding:2px 3px;">Plat</td><td style="padding:2px 3px;">Exp</td></tr>';
+        html += '<div style="font-size:11px;font-weight:700;color:#1565C0;padding:4px 0 2px;">Departures</div>';
+        html += '<table style="width:100%;font-size:10px;border-collapse:collapse;"><tr style="color:#999;"><td style="padding:2px 3px;">Time</td><td style="padding:2px 3px;">To</td><td style="padding:2px 3px;">Plat</td><td style="padding:2px 3px;">Exp</td></tr>';
         data.departures.forEach(function(d, idx) {
             var sc = d.expected === 'On time' ? '#1a9641' : (d.expected === 'Cancelled' ? '#d7191c' : '#f4a742');
             var rid = 'dep_' + idx;
             html += '<tr class="svc-row" onclick="showTrainDetail(\\'' + rid + '\\',\\'' + crs + '\\')" style="cursor:pointer;" title="Click for details"><td style="padding:3px;font-weight:600;">' + d.time + '</td><td style="padding:3px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + d.destination + '</td><td style="padding:3px;text-align:center;">' + d.platform + '</td><td style="padding:3px;color:' + sc + ';font-weight:600;font-size:9px;">' + d.expected + '</td></tr>';
         });
-        html += '</table></div>';
-    } else {
-        html += '<div style="flex:1;min-height:0;"></div>';
+        html += '</table>';
     }
     if (data.arrivals && data.arrivals.length) {
-        html += '<div style="flex:1;min-height:0;"><div style="font-size:11px;font-weight:700;color:#4CAF50;padding:6px 0 2px;border-top:1px solid #eee;margin-top:4px;">Arrivals</div>';
-        html += '<table style="width:100%;font-size:10px;border-collapse:collapse;table-layout:fixed;"><colgroup><col style="width:18%"><col style="width:42%"><col style="width:16%"><col style="width:24%"></colgroup><tr style="color:#999;"><td style="padding:2px 3px;">Time</td><td style="padding:2px 3px;text-align:left;">From</td><td style="padding:2px 3px;">Plat</td><td style="padding:2px 3px;">Exp</td></tr>';
+        html += '<div style="font-size:11px;font-weight:700;color:#4CAF50;padding:6px 0 2px;border-top:1px solid #eee;margin-top:4px;">Arrivals</div>';
+        html += '<table style="width:100%;font-size:10px;border-collapse:collapse;"><tr style="color:#999;"><td style="padding:2px 3px;">Time</td><td style="padding:2px 3px;">From</td><td style="padding:2px 3px;">Plat</td><td style="padding:2px 3px;">Exp</td></tr>';
         data.arrivals.forEach(function(a, idx) {
             var sc = a.expected === 'On time' ? '#1a9641' : (a.expected === 'Cancelled' ? '#d7191c' : '#f4a742');
             var rid = 'arr_' + idx;
             html += '<tr class="svc-row" onclick="showTrainDetail(\\'' + rid + '\\',\\'' + crs + '\\')" style="cursor:pointer;" title="Click for details"><td style="padding:3px;font-weight:600;">' + a.time + '</td><td style="padding:3px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + a.origin + '</td><td style="padding:3px;text-align:center;">' + a.platform + '</td><td style="padding:3px;color:' + sc + ';font-weight:600;font-size:9px;">' + a.expected + '</td></tr>';
         });
-        html += '</table></div>';
-    } else {
-        html += '<div style="flex:1;min-height:0;"></div>';
+        html += '</table>';
     }
     if ((!data.departures || !data.departures.length) && (!data.arrivals || !data.arrivals.length)) html += '<div style="color:#999;font-size:11px;padding:4px;">No services found.</div>';
     container.innerHTML = html;
@@ -1005,186 +1016,6 @@ function showTrainList(crs) {
     container.scrollTop = 0;
     _panPopup();
 }
-
-
-/* ====== Panel Bridge: communicate with parent page ====== */
-function openStationPanel(btn) {
-    var popup = btn.closest('.station-popup-mini');
-    if (!popup) return;
-    var msg = {
-        type: 'openPanel',
-        crs: popup.getAttribute('data-crs') || '',
-        name: popup.getAttribute('data-name') || '',
-        region: popup.getAttribute('data-region') || '',
-        operator: popup.getAttribute('data-operator') || '',
-        usageColour: popup.getAttribute('data-usage-colour') || '#888',
-        punctColour: popup.getAttribute('data-punct-colour') || '#888',
-        cancelColour: popup.getAttribute('data-cancel-colour') || '#888',
-        total: popup.getAttribute('data-total') || 'N/A',
-        dest: popup.getAttribute('data-dest') || '',
-        topRoute: popup.getAttribute('data-top-route') || '',
-        pl: popup.getAttribute('data-pl') || 'N/A',
-        cl: popup.getAttribute('data-cl') || 'N/A',
-        tp: popup.getAttribute('data-tp') || '',
-        tc: popup.getAttribute('data-tc') || '',
-        periodLabels: popup.getAttribute('data-period-labels') || ''
-    };
-    try { window.parent.postMessage(msg, '*'); } catch(e) {}
-}
-
-/* Listen for messages from parent page */
-window.addEventListener('message', function(e) {
-    if (!e.data || !e.data.type) return;
-
-    if (e.data.type === 'loadLiveTrains') {
-        var crs = e.data.crs;
-        fetch('/api/live/' + crs)
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                if (data.error) {
-                    window.parent.postMessage({type:'liveTrainsHTML', html:'<div style="color:#d7191c;font-size:11px;padding:8px;">Error: ' + data.error + '</div>'}, '*');
-                    return;
-                }
-                _liveCache[crs] = data;
-                _routeData = {};
-                if (data.departures) data.departures.forEach(function(d, idx) {
-                    var rid = 'dep_' + idx;
-                    _routeData[rid] = {type:'dep', operator: d.operator, previous: d.previous || [], subsequent: d.subsequent || [], station: data.station, time: d.time, expected: d.expected, destination: d.destination, origin: '', platform: d.platform, serviceID: d.serviceID};
-                });
-                if (data.arrivals) data.arrivals.forEach(function(a, idx) {
-                    var rid = 'arr_' + idx;
-                    _routeData[rid] = {type:'arr', operator: a.operator, previous: a.previous || [], subsequent: a.subsequent || [], station: data.station, time: a.time, expected: a.expected, destination: '', origin: a.origin, platform: a.platform, serviceID: a.serviceID};
-                });
-                var html = buildTrainListHTML(data, crs);
-                window.parent.postMessage({type:'liveTrainsHTML', html: html}, '*');
-            })
-            .catch(function() {
-                window.parent.postMessage({type:'liveTrainsHTML', html:'<div style="color:#d7191c;font-size:11px;padding:8px;">Failed to load data.</div>'}, '*');
-            });
-    }
-
-    if (e.data.type === 'renderLiveTrainsPanel') {
-        /* Already handled by loadLiveTrains above */
-    }
-
-    if (e.data.type === 'showTrainDetail') {
-        var rid = e.data.rid;
-        var crs = e.data.crs;
-        var d = _routeData[rid];
-        if (d) {
-            var html = buildTrainDetailHTML(d, crs);
-            window.parent.postMessage({type:'trainDetailHTML', html: html}, '*');
-        }
-    }
-
-    if (e.data.type === 'showTrainList') {
-        var crs = e.data.crs;
-        var data = _liveCache[crs];
-        if (data) {
-            var html = buildTrainListHTML(data, crs);
-            window.parent.postMessage({type:'trainListHTML', html: html}, '*');
-        }
-    }
-});
-
-/* Build the train list HTML (reusable for both popup and panel) */
-function buildTrainListHTML(data, crs) {
-    var html = '<div style="font-size:13px;font-weight:700;color:#0D47A1;margin-bottom:6px;"> </div><div style="display:flex;flex-direction:column;gap:4px;">';
-    if (data.departures && data.departures.length) {
-        html += '<div style="flex:1;min-height:0;"><div style="font-size:11px;font-weight:700;color:#1565C0;padding:4px 0 2px;">Departures</div>';
-        html += '<table style="width:100%;font-size:10px;border-collapse:collapse;table-layout:fixed;"><colgroup><col style="width:18%"><col style="width:42%"><col style="width:16%"><col style="width:24%"></colgroup><tr style="color:#999;"><td style="padding:2px 3px;">Time</td><td style="padding:2px 3px;text-align:left;">To</td><td style="padding:2px 3px;">Plat</td><td style="padding:2px 3px;">Exp</td></tr>';
-        data.departures.forEach(function(d, idx) {
-            var sc = d.expected === 'On time' ? '#1a9641' : (d.expected === 'Cancelled' ? '#d7191c' : '#f4a742');
-            var rid = 'dep_' + idx;
-            html += '<tr class="svc-row" onclick="panelShowTrainDetail(\\x27' + rid + '\\x27,\\x27' + crs + '\\x27)" style="cursor:pointer;" title="Click for details"><td style="padding:3px;font-weight:600;">' + d.time + '</td><td style="padding:3px;text-align:left;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + d.destination + '</td><td style="padding:3px;text-align:center;">' + d.platform + '</td><td style="padding:3px;color:' + sc + ';font-weight:600;font-size:9px;">' + d.expected + '</td></tr>';
-        });
-        html += '</table></div>';
-    } else {
-        html += '<div style="flex:1;min-height:0;"></div>';
-    }
-    if (data.arrivals && data.arrivals.length) {
-        html += '<div style="flex:1;min-height:0;"><div style="font-size:11px;font-weight:700;color:#4CAF50;padding:6px 0 2px;border-top:1px solid #eee;margin-top:4px;">Arrivals</div>';
-        html += '<table style="width:100%;font-size:10px;border-collapse:collapse;table-layout:fixed;"><colgroup><col style="width:18%"><col style="width:42%"><col style="width:16%"><col style="width:24%"></colgroup><tr style="color:#999;"><td style="padding:2px 3px;">Time</td><td style="padding:2px 3px;text-align:left;">From</td><td style="padding:2px 3px;">Plat</td><td style="padding:2px 3px;">Exp</td></tr>';
-        data.arrivals.forEach(function(a, idx) {
-            var sc = a.expected === 'On time' ? '#1a9641' : (a.expected === 'Cancelled' ? '#d7191c' : '#f4a742');
-            var rid = 'arr_' + idx;
-            html += '<tr class="svc-row" onclick="panelShowTrainDetail(\\x27' + rid + '\\x27,\\x27' + crs + '\\x27)" style="cursor:pointer;" title="Click for details"><td style="padding:3px;font-weight:600;">' + a.time + '</td><td style="padding:3px;text-align:left;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + a.origin + '</td><td style="padding:3px;text-align:center;">' + a.platform + '</td><td style="padding:3px;color:' + sc + ';font-weight:600;font-size:9px;">' + a.expected + '</td></tr>';
-        });
-        html += '</table></div>';
-    } else {
-        html += '<div style="flex:1;min-height:0;"></div>';
-    }
-    if ((!data.departures || !data.departures.length) && (!data.arrivals || !data.arrivals.length)) html += '<div style="color:#999;font-size:11px;padding:4px;">No services found.</div>';
-    html += '</div>';
-    return html;
-}
-
-function panelShowTrainDetail(rid, crs) {
-    if(window.event) window.event.stopPropagation();
-    var d = _routeData[rid];
-    if (!d) return;
-    var html = buildTrainDetailHTML(d, crs);
-    window.parent.postMessage({type:'trainDetailHTML', html: html}, '*');
-}
-
-function panelShowTrainList(crs) {
-    if(window.event) window.event.stopPropagation();
-    var data = _liveCache[crs];
-    if (!data) return;
-    var html = buildTrainListHTML(data, crs);
-    window.parent.postMessage({type:'trainListHTML', html: html}, '*');
-}
-
-function buildTrainDetailHTML(d, crs) {
-    var isDep = d.type === 'dep';
-    var heading = isDep ? (d.time + ' to ' + d.destination) : (d.time + ' from ' + d.origin);
-    var h = '';
-    h += '<div onclick="panelShowTrainList(\\x27' + crs + '\\x27)" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#1565C0;font-weight:600;margin-bottom:8px;padding:3px 0;">';
-    h += '<span style="font-size:14px;">\u2190</span> All trains</div>';
-    h += '<div style="background:linear-gradient(135deg,#0D47A1,#1565C0);color:white;border-radius:8px;padding:10px 12px;margin-bottom:8px;">';
-    h += '<div style="font-size:13px;font-weight:700;margin-bottom:2px;">' + heading + '</div>';
-    h += '<div style="font-size:10px;opacity:0.9;">' + (d.operator || '') + '</div>';
-    h += '<div style="display:flex;gap:12px;margin-top:6px;font-size:10px;">';
-    h += '<div><span style="opacity:0.7;">Platform</span><br><strong style="font-size:13px;">' + (d.platform || 'TBD') + '</strong></div>';
-    h += '<div><span style="opacity:0.7;">Expected</span><br><strong style="font-size:13px;color:' + (d.expected === 'On time' ? '#81C784' : (d.expected === 'Cancelled' ? '#ef9a9a' : '#FFE082')) + ';">' + d.expected + '</strong></div>';
-    h += '</div></div>';
-    var stops = [];
-    if (d.previous && d.previous.length) d.previous.forEach(function(p) { stops.push({name: p.name, st: p.st||'', et: p.et||'', at: p.at||'', passed:true, cancelled:p.cancelled}); });
-    stops.push({name: d.station||'Here', st: d.time||'', et:'', at:'', passed:true, current:true});
-    if (d.subsequent && d.subsequent.length) d.subsequent.forEach(function(p) { stops.push({name: p.name, st: p.st||'', et: p.et||'', at: p.at||'', passed:false, cancelled:p.cancelled}); });
-    h += '<div style="font-size:10px;font-weight:700;color:#333;margin-bottom:4px;">Calling Points (' + stops.length + ' stops)</div>';
-    h += '<div style="background:#f8f9fa;border-radius:6px;padding:6px 8px;">';
-    stops.forEach(function(st, i) {
-        var isLast = (i === stops.length - 1);
-        var dotCol = st.cancelled ? '#d7191c' : (st.current ? '#0D47A1' : (st.passed ? '#4CAF50' : '#90A4AE'));
-        var txtCol = st.cancelled ? '#d7191c' : (st.current ? '#0D47A1' : '#333');
-        var fw = st.current ? '700' : '400';
-        var lineCol = st.passed ? '#4CAF50' : '#ccc';
-        var dot = st.current ? '\u25C9' : '\u25CF';
-        var timeStr = st.at && st.at !== '' ? st.at : (st.et && st.et !== '' ? st.et : st.st);
-        h += '<div style="display:flex;align-items:stretch;' + (st.current ? 'background:#E3F2FD;margin:2px -4px;padding:2px 4px;border-radius:4px;' : '') + '">';
-        h += '<div style="display:flex;flex-direction:column;align-items:center;width:16px;flex-shrink:0;">';
-        h += '<span style="color:' + dotCol + ';font-size:' + (st.current ? '12px' : '9px') + ';line-height:16px;">' + dot + '</span>';
-        if (!isLast) h += '<div style="width:2px;flex:1;min-height:8px;background:' + lineCol + ';"></div>';
-        h += '</div>';
-        h += '<div style="flex:1;min-width:0;padding-left:6px;display:flex;justify-content:space-between;align-items:center;line-height:16px;">';
-        h += '<span style="font-size:10px;color:' + txtCol + ';font-weight:' + fw + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + st.name;
-        if (st.cancelled) h += ' <span style="color:#d7191c;font-size:8px;font-weight:700;">CANC</span>';
-        h += '</span>';
-        if (timeStr) {
-            var timeCol = '#888';
-            if (st.at && st.at !== '' && st.at !== 'On time') timeCol = '#4CAF50';
-            if (st.cancelled) timeCol = '#d7191c';
-            if (st.current) timeCol = '#0D47A1';
-            h += '<span style="font-size:9px;color:' + timeCol + ';font-weight:' + (st.current ? '700' : '400') + ';margin-left:6px;white-space:nowrap;">' + timeStr + '</span>';
-        }
-        h += '</div></div>';
-    });
-    h += '</div>';
-    if (d.serviceID) h += '<div style="font-size:8px;color:#bbb;margin-top:6px;text-align:right;">ID: ' + d.serviceID + '</div>';
-    return h;
-}
-
 </script>
 """
 
@@ -1318,7 +1149,6 @@ _ZOOM_SWAP_JS = """
 
 _STATION_CSS = """
 <style>
-/* ── Station markers ── */
 .station-marker { width:22px; height:22px; display:flex; align-items:center; justify-content:center; position:relative;
     transform:scale(var(--zoom-scale, 0.22)); transition:transform 0.3s ease; transform-origin:center center; }
 .station-icon {
@@ -1334,49 +1164,25 @@ _STATION_CSS = """
     box-shadow:0 0 0 3px rgba(255,255,255,0.5), 0 2px 10px rgba(0,0,0,0.35);
     filter:brightness(1.15);
 }
-
-/* ── Leaflet popup overrides ── */
-.leaflet-popup-content-wrapper { padding:0 !important; border-radius:10px !important; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.18) !important; }
+.leaflet-popup-content-wrapper { padding:0 !important; border-radius:8px !important; overflow:hidden; }
 .leaflet-popup-content { margin:0 !important; width:auto !important; }
-.leaflet-popup-close-button { width:22px !important; height:22px !important; font-size:14px !important; font-weight:700 !important;
-    color:white !important; background:rgba(0,0,0,0.25) !important; border-radius:50% !important;
+.leaflet-popup-close-button { width:26px !important; height:26px !important; font-size:18px !important; font-weight:700 !important;
+    color:white !important; background:rgba(0,0,0,0.35) !important; border-radius:50% !important;
     display:flex !important; align-items:center !important; justify-content:center !important;
-    top:8px !important; right:8px !important; padding:0 !important; margin:0 !important;
+    top:6px !important; right:6px !important; padding:0 !important; margin:0 !important;
     line-height:1 !important; transition:background 0.2s ease !important; z-index:10 !important; }
-.leaflet-popup-close-button:hover { background:rgba(0,0,0,0.5) !important; }
-.leaflet-popup-tip { border-top-color:white !important; }
-
-/* ── Compact popup card ── */
-.station-popup-mini { font-family:'Inter','Segoe UI',Arial,sans-serif; min-width:200px; max-width:240px; }
-.spm-header { color:white; padding:12px 14px 10px; }
-.spm-name { font-size:14px; font-weight:700; letter-spacing:-0.3px; line-height:1.2; }
-.spm-meta { font-size:10px; opacity:0.8; margin-top:3px; }
-.spm-body { background:#fff; padding:10px 14px 12px; }
-.spm-stats { display:flex; align-items:center; gap:0; }
-.spm-stat { flex:1; text-align:center; }
-.spm-stat-val { display:block; font-size:13px; font-weight:700; line-height:1.1; }
-.spm-stat-lbl { display:block; font-size:8px; color:#999; text-transform:uppercase; letter-spacing:0.4px; margin-top:2px; }
-.spm-divider { width:1px; height:24px; background:#e8e8e8; flex-shrink:0; }
-.spm-route { display:flex; align-items:center; gap:5px; margin:10px 0 0; padding:6px 8px; background:#f5f7fa; border-radius:5px; font-size:10px; color:#555; }
-.spm-route-icon { font-size:12px; color:#888; flex-shrink:0; }
-.spm-route-text { line-height:1.3; }
-.spm-route-text strong { color:#333; }
-.spm-btn { display:block; width:100%; margin-top:10px; padding:9px 12px; border:none; border-radius:6px;
-    background:linear-gradient(135deg,#1976D2,#1565C0); color:white; font-size:11px; font-weight:600;
-    cursor:pointer; font-family:inherit; text-align:center; transition:all 0.15s;
-    letter-spacing:0.2px; }
-.spm-btn:hover { filter:brightness(1.1); }
-.spm-btn:active { transform:scale(0.98); }
-
-/* ── Live train rows ── */
+.leaflet-popup-close-button:hover { background:rgba(0,0,0,0.6) !important; color:white !important; }
 .svc-row[onclick] { transition:background 0.15s ease; }
 .svc-row[onclick]:hover { background:#e8f0fe; border-radius:2px; }
-
+.svc-row[onclick] { transition:background 0.15s ease; }
+.svc-row[onclick]:hover { background:#e8f0fe; border-radius:2px; }
 @media (max-width: 480px) {
-    .leaflet-popup-content-wrapper { min-width:75vw !important; max-width:88vw !important; }
-    .leaflet-popup-content { min-width:75vw !important; max-width:88vw !important; }
-    .station-popup-mini { min-width:0 !important; max-width:100% !important; width:100% !important; }
-    .spm-btn { padding:11px 12px; font-size:12px; }
+    .leaflet-popup-content-wrapper { min-width:88vw !important; max-width:92vw !important; }
+    .leaflet-popup-content { min-width:88vw !important; max-width:92vw !important; width:92vw !important; }
+    .station-popup { width:100% !important; }
+    .popup-body { flex-direction:column !important; width:100% !important; }
+    .popup-left { min-width:0 !important; max-width:100% !important; width:100% !important; padding:8px 10px !important; }
+    .popup-right { border-left:none !important; border-top:1px solid #eee !important; min-width:0 !important; max-width:100% !important; width:100% !important; max-height:260px !important; }
 }
 </style>
 """
@@ -1501,71 +1307,6 @@ def _build_page_html(map_html, stations_json):
             .header-right {{ order:2; }}
             .nav-btn {{ font-size:11px; padding:5px 10px; }}
         }}
-
-        /* ── Station Panel (desktop: side panel, mobile: bottom sheet) ── */
-        .station-panel {{
-            position:fixed; top:56px; left:-420px; width:400px; height:calc(100vh - 56px);
-            background:#fff; box-shadow:4px 0 24px rgba(0,0,0,0.15);
-            z-index:20000; transition:left 0.35s cubic-bezier(0.4,0,0.2,1);
-            display:flex; flex-direction:column;
-            font-family:'Inter','Segoe UI',Arial,sans-serif;
-        }}
-        .station-panel.open {{ left:0; }}
-        .station-panel-overlay {{
-            position:fixed; top:0; left:0; right:0; bottom:0;
-            background:rgba(0,0,0,0.3); z-index:19999;
-            opacity:0; pointer-events:none; transition:opacity 0.3s;
-        }}
-        .station-panel-overlay.open {{ opacity:1; pointer-events:auto; }}
-        .panel-header {{
-            padding:16px 20px; color:#fff; flex-shrink:0; position:relative;
-        }}
-        .panel-header h2 {{ margin:0 0 4px; font-size:18px; font-weight:700; }}
-        .panel-header p  {{ margin:0; font-size:12px; opacity:0.85; }}
-        .panel-close {{
-            position:absolute; top:12px; right:12px; width:32px; height:32px;
-            border-radius:50%; border:none; background:rgba(255,255,255,0.2);
-            color:#fff; font-size:18px; cursor:pointer;
-            display:flex; align-items:center; justify-content:center;
-            transition:background 0.2s;
-        }}
-        .panel-close:hover {{ background:rgba(255,255,255,0.35); }}
-
-        .panel-body {{ flex:1; overflow-y:auto; padding:0; }}
-
-        .panel-section {{
-            padding:16px 20px; border-bottom:1px solid #f0f0f0;
-        }}
-        .panel-section-title {{
-            font-size:11px; font-weight:600; text-transform:uppercase;
-            letter-spacing:0.8px; color:#888; margin-bottom:10px;
-        }}
-        .panel-stat-row {{
-            display:flex; justify-content:space-between; align-items:center;
-            padding:6px 0; border-bottom:1px solid #f8f8f8;
-        }}
-        .panel-stat-label {{ color:#666; font-size:13px; }}
-        .panel-stat-value {{ font-weight:600; font-size:13px; }}
-        .svc-row {{ transition:background 0.15s ease; }}
-        .svc-row:hover {{ background:#e8f0fe; }}
-
-
-        @media (max-width: 700px) {{
-            .station-panel {{
-                left:0; top:auto; bottom:-100vh;
-                width:100vw; height:85vh;
-                border-radius:16px 16px 0 0;
-                transition:bottom 0.35s cubic-bezier(0.4,0,0.2,1), left 0s;
-                box-shadow:0 -4px 24px rgba(0,0,0,0.2);
-            }}
-            .station-panel.open {{ bottom:0; left:0; }}
-            .panel-header {{ border-radius:16px 16px 0 0; }}
-            .panel-header::before {{
-                content:''; display:block; width:36px; height:4px;
-                background:rgba(255,255,255,0.4); border-radius:2px;
-                margin:0 auto 10px;
-            }}
-        }}
     </style>
 </head>
 <body>
@@ -1680,167 +1421,6 @@ def _build_page_html(map_html, stations_json):
         document.addEventListener('click', function(e) {{ if (!input.contains(e.target) && !resultsDiv.contains(e.target)) resultsDiv.style.display = 'none'; }});
     }})();
     </script>
-
-    <!-- Station Detail Panel -->
-    <div class="station-panel-overlay" id="panel-overlay" onclick="closeStationPanel()"></div>
-    <div class="station-panel" id="station-panel">
-        <div class="panel-header" id="panel-header">
-            <button class="panel-close" onclick="closeStationPanel()">&times;</button>
-            <div id="panel-station-name" style="font-size:18px;font-weight:700;margin-bottom:2px;"></div>
-            <div id="panel-station-meta" style="font-size:11px;opacity:0.85;"></div>
-        </div>
-
-        <div class="panel-body">
-                <div class="panel-section">
-                    <div class="panel-section-title">Station Information</div>
-                    <div id="panel-stats"></div>
-                </div>
-                <div class="panel-section">
-                    <div class="panel-section-title">Punctuality Trend</div>
-                    <div style="position:relative;">
-                        <svg id="panel-svg-punct" width="100%%" height="60" style="display:block;"></svg>
-                        <div class="spark-tooltip panel-spark-tip" style="display:none;position:absolute;top:-6px;pointer-events:none;background:rgba(0,0,0,0.8);color:#fff;font-size:10px;padding:3px 6px;border-radius:4px;white-space:nowrap;z-index:5;transform:translateX(-50%);"></div>
-                        <div class="spark-crosshair panel-spark-cross" style="display:none;position:absolute;top:0;width:1px;height:100%%;background:rgba(0,0,0,0.2);pointer-events:none;z-index:4;"></div>
-                    </div>
-                </div>
-                <div class="panel-section">
-                    <div class="panel-section-title">Cancellation Trend</div>
-                    <div style="position:relative;">
-                        <svg id="panel-svg-cancel" width="100%%" height="60" style="display:block;"></svg>
-                        <div class="spark-tooltip panel-spark-tip" style="display:none;position:absolute;top:-6px;pointer-events:none;background:rgba(0,0,0,0.8);color:#fff;font-size:10px;padding:3px 6px;border-radius:4px;white-space:nowrap;z-index:5;transform:translateX(-50%);"></div>
-                        <div class="spark-crosshair panel-spark-cross" style="display:none;position:absolute;top:0;width:1px;height:100%%;background:rgba(0,0,0,0.2);pointer-events:none;z-index:4;"></div>
-                    </div>
-                </div>
-                <div class="panel-section" id="panel-live-section">
-                    <div class="panel-section-title">Live Trains</div>
-                    <div id="panel-live-content" style="color:#999;font-size:12px;text-align:center;padding:12px 0;">Click below to fetch live departures &amp; arrivals.</div>
-                    <button id="panel-live-btn" onclick="panelLoadLiveTrains()" style="width:100%%;padding:8px;border:none;border-radius:6px;background:linear-gradient(135deg,#1565C0,#0D47A1);color:white;font-size:12px;font-weight:600;cursor:pointer;margin-top:8px;transition:opacity 0.2s;">&#128646; Load Live Trains</button>
-                </div>
-        </div>
-    </div>
-
-    <script>
-    var _panelData = {{}};
-    var _panelCrs = '';
-
-    /* Relay train detail/list clicks from parent to iframe */
-    function panelShowTrainDetail(rid, crs) {{
-        var iframe = document.querySelector('.map-container iframe');
-        if (iframe) {{
-            try {{ iframe.contentWindow.postMessage({{type:'showTrainDetail', rid:rid, crs:crs}}, '*'); }} catch(ex) {{}}
-        }}
-    }}
-    function panelShowTrainList(crs) {{
-        var iframe = document.querySelector('.map-container iframe');
-        if (iframe) {{
-            try {{ iframe.contentWindow.postMessage({{type:'showTrainList', crs:crs}}, '*'); }} catch(ex) {{}}
-        }}
-    }}
-
-    function closeStationPanel() {{
-        document.getElementById('station-panel').classList.remove('open');
-        document.getElementById('panel-overlay').classList.remove('open');
-    }}
-
-
-
-    function renderPanelSparklines() {{
-        renderOneSpark('panel-svg-punct', _panelData.tp, _panelData.periodLabels, '#1565C0');
-        renderOneSpark('panel-svg-cancel', _panelData.tc, _panelData.periodLabels, '#d7191c');
-    }}
-
-    function renderOneSpark(svgId, valuesStr, labelsStr, color) {{
-        var svg = document.getElementById(svgId);
-        if (!svg || !valuesStr) {{ if(svg) svg.innerHTML='<text x="50%%" y="50%%" text-anchor="middle" fill="#ccc" font-size="11">No data</text>'; return; }}
-        var vals = valuesStr.split('|').map(function(v) {{ return v === '' ? null : parseFloat(v); }});
-        var labels = labelsStr ? labelsStr.split('|') : [];
-        var w = svg.getBoundingClientRect().width || 320, h = parseInt(svg.getAttribute('height')) || 60;
-        var valid = vals.filter(function(v) {{ return v !== null; }});
-        if (!valid.length) {{ svg.innerHTML = '<text x="50%%" y="50%%" text-anchor="middle" fill="#ccc" font-size="11">No data</text>'; return; }}
-        var mn = Math.min.apply(null, valid), mx = Math.max.apply(null, valid);
-        if (mn === mx) {{ mn -= 1; mx += 1; }}
-        var pad = 6;
-        var pts = [];
-        vals.forEach(function(v, i) {{
-            if (v !== null) {{
-                var x = pad + (i / Math.max(vals.length - 1, 1)) * (w - 2 * pad);
-                var y = h - pad - ((v - mn) / (mx - mn)) * (h - 2 * pad);
-                pts.push({{x:x, y:y, v:v, label: labels[i] || ''}});
-            }}
-        }});
-        var path = pts.map(function(p, i) {{ return (i === 0 ? 'M' : 'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1); }}).join(' ');
-        var dots = pts.map(function(p) {{ return '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="3" fill="' + color + '"/>'; }}).join('');
-        svg.innerHTML = '<path d="' + path + '" fill="none" stroke="' + color + '" stroke-width="2" stroke-linecap="round"/>' + dots;
-        var wrap = svg.parentElement;
-        var tip = wrap.querySelector('.panel-spark-tip');
-        var cross = wrap.querySelector('.panel-spark-cross');
-        svg.onmousemove = function(ev) {{
-            if (!tip) return;
-            var rect = svg.getBoundingClientRect();
-            var mx2 = ev.clientX - rect.left;
-            var closest = null, minD = 999;
-            pts.forEach(function(p) {{ var d = Math.abs(p.x - mx2); if (d < minD) {{ minD = d; closest = p; }} }});
-            if (closest && minD < 30) {{
-                tip.style.display = 'block'; tip.style.left = closest.x + 'px';
-                tip.textContent = closest.label + ': ' + closest.v + '%%';
-                if (cross) {{ cross.style.display = 'block'; cross.style.left = closest.x + 'px'; }}
-            }} else {{ tip.style.display = 'none'; if (cross) cross.style.display = 'none'; }}
-        }};
-        svg.onmouseleave = function() {{ if (tip) tip.style.display = 'none'; if (cross) cross.style.display = 'none'; }};
-    }}
-
-    function panelLoadLiveTrains() {{
-        var btn = document.getElementById('panel-live-btn');
-        var content = document.getElementById('panel-live-content');
-        if (!_panelCrs) return;
-        btn.disabled = true; btn.style.opacity = '0.5';
-        content.innerHTML = '<div style="text-align:center;padding:16px;color:#999;font-size:12px;">Loading...</div>';
-        var iframe = document.querySelector('.map-container iframe');
-        if (iframe) {{
-            try {{ iframe.contentWindow.postMessage({{type:'loadLiveTrains', crs: _panelCrs}}, '*'); }} catch(ex) {{
-                content.innerHTML = '<div style="color:#d7191c;font-size:11px;">Failed.</div>';
-                btn.disabled = false; btn.style.opacity = '1';
-            }}
-        }}
-    }}
-
-    window.addEventListener('message', function(e) {{
-        if (!e.data || !e.data.type) return;
-        if (e.data.type === 'openPanel') {{
-            _panelData = e.data;
-            _panelCrs = e.data.crs;
-            document.getElementById('panel-header').style.background = e.data.usageColour;
-            document.getElementById('panel-station-name').textContent = e.data.name;
-            document.getElementById('panel-station-meta').textContent = e.data.crs + ' \u2022 ' + e.data.region + ' \u2022 ' + e.data.operator;
-            var sh = '';
-            sh += '<div class="panel-stat-row"><span class="panel-stat-label">Annual Entries & Exits</span><span class="panel-stat-value" style="color:' + e.data.usageColour + ';">' + e.data.total + '</span></div>';
-            sh += '<div class="panel-stat-row"><span class="panel-stat-label">Top Route</span><span class="panel-stat-value">' + e.data.dest + ' (' + e.data.topRoute + ')</span></div>';
-            sh += '<div class="panel-stat-row"><span class="panel-stat-label">Punctuality</span><span class="panel-stat-value" style="color:' + e.data.punctColour + ';">' + e.data.pl + '</span></div>';
-            sh += '<div class="panel-stat-row"><span class="panel-stat-label">Cancellations</span><span class="panel-stat-value" style="color:' + e.data.cancelColour + ';">' + e.data.cl + '</span></div>';
-            sh += '<div class="panel-stat-row"><span class="panel-stat-label">Operator</span><span class="panel-stat-value">' + e.data.operator + '</span></div>';
-            document.getElementById('panel-stats').innerHTML = sh;
-
-            document.getElementById('station-panel').classList.add('open');
-            document.getElementById('panel-overlay').classList.add('open');
-            setTimeout(renderPanelSparklines, 100);
-            document.getElementById('panel-live-content').innerHTML = '<div style="color:#999;font-size:12px;text-align:center;padding:12px 0;">Click below to fetch live departures &amp; arrivals.</div>';
-            var lb = document.getElementById('panel-live-btn'); lb.disabled = false; lb.style.opacity = '1'; lb.style.display = ''; lb.textContent = '🚆 Load Live Trains';
-        }}
-        if (e.data.type === 'liveTrainsHTML') {{
-            document.getElementById('panel-live-content').innerHTML = e.data.html;
-            var lb = document.getElementById('panel-live-btn'); lb.textContent = '\u21bb Refresh'; lb.disabled = false; lb.style.opacity = '1';
-        }}
-        if (e.data.type === 'trainDetailHTML') {{
-            document.getElementById('panel-live-content').innerHTML = e.data.html;
-            document.getElementById('panel-live-btn').style.display = 'none';
-        }}
-        if (e.data.type === 'trainListHTML') {{
-            document.getElementById('panel-live-content').innerHTML = e.data.html;
-            var lb = document.getElementById('panel-live-btn'); lb.style.display = ''; lb.textContent = '\u21bb Refresh'; lb.disabled = false; lb.style.opacity = '1';
-        }}
-    }});
-    </script>
-
 </body>
 </html>"""
 
