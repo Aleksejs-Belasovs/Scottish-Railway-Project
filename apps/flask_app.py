@@ -986,10 +986,12 @@ function showTrainDetail(rid, crs) {
                     status = 'On time';
                     statusCol = '#1a9641';
                 } else {
-                    /* Actual time differs from scheduled - check if late */
+                    /* Actual time differs from scheduled - check if late (handles midnight wrap) */
                     var atMins = parseInt(st.at.split(':')[0]||0)*60 + parseInt(st.at.split(':')[1]||0);
                     var stMins = parseInt((st.st||'').split(':')[0]||0)*60 + parseInt((st.st||'').split(':')[1]||0);
-                    if (st.st && st.at.indexOf(':') !== -1 && atMins > stMins) {
+                    var diff = atMins - stMins;
+                    if (diff < 0) diff += 1440; /* midnight wraparound */
+                    if (st.st && st.at.indexOf(':') !== -1 && diff > 0 && diff <= 180) {
                         status = st.at + '';
                         statusCol = '#f4a742';
                     } else {
@@ -1218,10 +1220,12 @@ function buildTrainDetailHTML(d, crs) {
                     status = 'On time';
                     statusCol = '#1a9641';
                 } else {
-                    /* Actual time differs from scheduled - check if late */
+                    /* Actual time differs from scheduled - check if late (handles midnight wrap) */
                     var atMins = parseInt(st.at.split(':')[0]||0)*60 + parseInt(st.at.split(':')[1]||0);
                     var stMins = parseInt((st.st||'').split(':')[0]||0)*60 + parseInt((st.st||'').split(':')[1]||0);
-                    if (st.st && st.at.indexOf(':') !== -1 && atMins > stMins) {
+                    var diff = atMins - stMins;
+                    if (diff < 0) diff += 1440; /* midnight wraparound */
+                    if (st.st && st.at.indexOf(':') !== -1 && diff > 0 && diff <= 180) {
                         status = st.at + '';
                         statusCol = '#f4a742';
                     } else {
