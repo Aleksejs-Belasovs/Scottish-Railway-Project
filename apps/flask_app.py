@@ -990,7 +990,7 @@ function showTrainDetail(rid, crs) {
                     var atMins = parseInt(st.at.split(':')[0]||0)*60 + parseInt(st.at.split(':')[1]||0);
                     var stMins = parseInt((st.st||'').split(':')[0]||0)*60 + parseInt((st.st||'').split(':')[1]||0);
                     if (st.st && st.at.indexOf(':') !== -1 && atMins > stMins) {
-                        status = st.at + ' (Late)';
+                        status = st.at + '';
                         statusCol = '#f4a742';
                     } else {
                         status = st.at;
@@ -1222,7 +1222,7 @@ function buildTrainDetailHTML(d, crs) {
                     var atMins = parseInt(st.at.split(':')[0]||0)*60 + parseInt(st.at.split(':')[1]||0);
                     var stMins = parseInt((st.st||'').split(':')[0]||0)*60 + parseInt((st.st||'').split(':')[1]||0);
                     if (st.st && st.at.indexOf(':') !== -1 && atMins > stMins) {
-                        status = st.at + ' (Late)';
+                        status = st.at + '';
                         statusCol = '#f4a742';
                     } else {
                         status = st.at;
