@@ -943,7 +943,7 @@ function showTrainDetail(rid, crs) {
             stops.push({name: p.name, st: p.st || '', et: p.et || '', at: p.at || '', passed: true, cancelled: p.cancelled});
         });
     }
-    stops.push({name: d.station || 'Here', st: d.time || '', et: '', at: '', passed: true, current: true});
+    stops.push({name: d.station || 'Here', st: d.time || '', et: d.expected || '', at: '', passed: true, current: true});
     if (d.subsequent && d.subsequent.length) {
         d.subsequent.forEach(function(p) {
             stops.push({name: p.name, st: p.st || '', et: p.et || '', at: p.at || '', passed: false, cancelled: p.cancelled});
@@ -986,8 +986,16 @@ function showTrainDetail(rid, crs) {
                     status = 'On time';
                     statusCol = '#1a9641';
                 } else {
-                    status = st.at;
-                    statusCol = '#4CAF50';
+                    /* Actual time differs from scheduled - check if late */
+                    var atMins = parseInt(st.at.split(':')[0]||0)*60 + parseInt(st.at.split(':')[1]||0);
+                    var stMins = parseInt((st.st||'').split(':')[0]||0)*60 + parseInt((st.st||'').split(':')[1]||0);
+                    if (st.st && st.at.indexOf(':') !== -1 && atMins > stMins) {
+                        status = st.at + ' (Late)';
+                        statusCol = '#f4a742';
+                    } else {
+                        status = st.at;
+                        statusCol = '#1a9641';
+                    }
                 }
             } else if (st.et && st.et !== '') {
                 if (st.et === 'On time' || st.et === st.st) {
@@ -1177,7 +1185,7 @@ function buildTrainDetailHTML(d, crs) {
     h += '</div></div>';
     var stops = [];
     if (d.previous && d.previous.length) d.previous.forEach(function(p) { stops.push({name: p.name, st: p.st||'', et: p.et||'', at: p.at||'', passed:true, cancelled:p.cancelled}); });
-    stops.push({name: d.station||'Here', st: d.time||'', et:'', at:'', passed:true, current:true});
+    stops.push({name: d.station||'Here', st: d.time||'', et: d.expected||'', at:'', passed:true, current:true});
     if (d.subsequent && d.subsequent.length) d.subsequent.forEach(function(p) { stops.push({name: p.name, st: p.st||'', et: p.et||'', at: p.at||'', passed:false, cancelled:p.cancelled}); });
     h += '<div style="font-size:10px;font-weight:700;color:#333;margin-bottom:4px;">Calling Points (' + stops.length + ' stops)</div>';
     h += '<div style="background:#f8f9fa;border-radius:6px;padding:6px 8px;">';
@@ -1210,8 +1218,16 @@ function buildTrainDetailHTML(d, crs) {
                     status = 'On time';
                     statusCol = '#1a9641';
                 } else {
-                    status = st.at;
-                    statusCol = '#4CAF50';
+                    /* Actual time differs from scheduled - check if late */
+                    var atMins = parseInt(st.at.split(':')[0]||0)*60 + parseInt(st.at.split(':')[1]||0);
+                    var stMins = parseInt((st.st||'').split(':')[0]||0)*60 + parseInt((st.st||'').split(':')[1]||0);
+                    if (st.st && st.at.indexOf(':') !== -1 && atMins > stMins) {
+                        status = st.at + ' (Late)';
+                        statusCol = '#f4a742';
+                    } else {
+                        status = st.at;
+                        statusCol = '#1a9641';
+                    }
                 }
             } else if (st.et && st.et !== '') {
                 if (st.et === 'On time' || st.et === st.st) {
