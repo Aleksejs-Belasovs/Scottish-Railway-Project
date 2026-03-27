@@ -1566,8 +1566,8 @@ def _build_page_html(map_html, stations_json):
                 order:3; width:100%%; flex-wrap:wrap; gap:8px; justify-content:center;
             }}
             .search-wrap {{ width:100%%; }}
-            .search-wrap input {{ width:100%% !important; }}
-            .search-wrap input:focus {{ width:100%% !important; }}
+            .search-wrap input {{ width:100%% !important; font-size:16px !important; }}
+            .search-wrap input:focus {{ width:100%% !important; font-size:16px !important; }}
             #search-results {{ width:100%%; }}
             .divider {{ display:none; }}
             .colour-wrap label {{ display:none; }}
