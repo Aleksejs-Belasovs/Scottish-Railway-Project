@@ -882,30 +882,30 @@ function _panPopup() {
 function renderTrainList(container, data, crs) {
     var html = '<div style="font-size:13px;font-weight:700;color:#0D47A1;margin-bottom:6px;">\U0001f682 Live Trains</div>';
     if (data.departures && data.departures.length) {
-        html += '<div style="flex:1;min-height:0;"><div style="font-size:11px;font-weight:700;color:#1565C0;padding:4px 0 2px;">Departures</div>';
-        html += '<table style="width:100%;font-size:10px;border-collapse:collapse;table-layout:fixed;"><colgroup><col style="width:18%"><col style="width:42%"><col style="width:16%"><col style="width:24%"></colgroup><tr style="color:#999;"><td style="padding:2px 3px;">Time</td><td style="padding:2px 3px;text-align:left;">To</td><td style="padding:2px 3px;">Plat</td><td style="padding:2px 3px;">Exp</td></tr>';
+        html += '<div style="flex:1;min-height:0;"><div style="font-size:12px;font-weight:700;color:#1565C0;padding:4px 0 2px;">Departures</div>';
+        html += '<table style="width:100%;font-size:12px;border-collapse:collapse;table-layout:fixed;"><colgroup><col style="width:18%"><col style="width:42%"><col style="width:16%"><col style="width:24%"></colgroup><tr style="color:#999;"><td style="padding:2px 3px;">Time</td><td style="padding:2px 3px;text-align:left;">To</td><td style="padding:2px 3px;">Plat</td><td style="padding:2px 3px;">Exp</td></tr>';
         data.departures.forEach(function(d, idx) {
             var sc = d.expected === 'On time' ? '#1a9641' : (d.expected === 'Cancelled' ? '#d7191c' : '#f4a742');
             var rid = 'dep_' + idx;
-            html += '<tr class="svc-row" onclick="showTrainDetail(\\'' + rid + '\\',\\'' + crs + '\\')" style="cursor:pointer;" title="Click for details"><td style="padding:3px;font-weight:600;">' + d.time + '</td><td style="padding:3px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + d.destination + '</td><td style="padding:3px;text-align:center;">' + d.platform + '</td><td style="padding:3px;color:' + sc + ';font-weight:600;font-size:9px;">' + d.expected + '</td></tr>';
+            html += '<tr class="svc-row" onclick="showTrainDetail(\\'' + rid + '\\',\\'' + crs + '\\')" style="cursor:pointer;" title="Click for details"><td style="padding:3px;font-weight:600;">' + d.time + '</td><td style="padding:3px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + d.destination + '</td><td style="padding:3px;text-align:center;">' + d.platform + '</td><td style="padding:3px;color:' + sc + ';font-weight:600;font-size:12px;">' + d.expected + '</td></tr>';
         });
         html += '</table></div>';
     } else {
         html += '<div style="flex:1;min-height:0;"></div>';
     }
     if (data.arrivals && data.arrivals.length) {
-        html += '<div style="flex:1;min-height:0;"><div style="font-size:11px;font-weight:700;color:#4CAF50;padding:6px 0 2px;border-top:1px solid #eee;margin-top:4px;">Arrivals</div>';
-        html += '<table style="width:100%;font-size:10px;border-collapse:collapse;table-layout:fixed;"><colgroup><col style="width:18%"><col style="width:42%"><col style="width:16%"><col style="width:24%"></colgroup><tr style="color:#999;"><td style="padding:2px 3px;">Time</td><td style="padding:2px 3px;text-align:left;">From</td><td style="padding:2px 3px;">Plat</td><td style="padding:2px 3px;">Exp</td></tr>';
+        html += '<div style="flex:1;min-height:0;"><div style="font-size:12px;font-weight:700;color:#4CAF50;padding:6px 0 2px;border-top:1px solid #eee;margin-top:4px;">Arrivals</div>';
+        html += '<table style="width:100%;font-size:12px;border-collapse:collapse;table-layout:fixed;"><colgroup><col style="width:18%"><col style="width:42%"><col style="width:16%"><col style="width:24%"></colgroup><tr style="color:#999;"><td style="padding:2px 3px;">Time</td><td style="padding:2px 3px;text-align:left;">From</td><td style="padding:2px 3px;">Plat</td><td style="padding:2px 3px;">Exp</td></tr>';
         data.arrivals.forEach(function(a, idx) {
             var sc = a.expected === 'On time' ? '#1a9641' : (a.expected === 'Cancelled' ? '#d7191c' : '#f4a742');
             var rid = 'arr_' + idx;
-            html += '<tr class="svc-row" onclick="showTrainDetail(\\'' + rid + '\\',\\'' + crs + '\\')" style="cursor:pointer;" title="Click for details"><td style="padding:3px;font-weight:600;">' + a.time + '</td><td style="padding:3px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + a.origin + '</td><td style="padding:3px;text-align:center;">' + a.platform + '</td><td style="padding:3px;color:' + sc + ';font-weight:600;font-size:9px;">' + a.expected + '</td></tr>';
+            html += '<tr class="svc-row" onclick="showTrainDetail(\\'' + rid + '\\',\\'' + crs + '\\')" style="cursor:pointer;" title="Click for details"><td style="padding:3px;font-weight:600;">' + a.time + '</td><td style="padding:3px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + a.origin + '</td><td style="padding:3px;text-align:center;">' + a.platform + '</td><td style="padding:3px;color:' + sc + ';font-weight:600;font-size:12px;">' + a.expected + '</td></tr>';
         });
         html += '</table></div>';
     } else {
         html += '<div style="flex:1;min-height:0;"></div>';
     }
-    if ((!data.departures || !data.departures.length) && (!data.arrivals || !data.arrivals.length)) html += '<div style="color:#999;font-size:11px;padding:4px;">No services found.</div>';
+    if ((!data.departures || !data.departures.length) && (!data.arrivals || !data.arrivals.length)) html += '<div style="color:#999;font-size:12px;padding:4px;">No services found.</div>';
     container.innerHTML = html;
     container.onclick = function(e) { e.stopPropagation(); };
 }
@@ -924,14 +924,14 @@ function showTrainDetail(rid, crs) {
 
     var h = '';
     /* Back button */
-    h += '<div onclick="showTrainList(\\'' + crs + '\\')" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#1565C0;font-weight:600;margin-bottom:8px;padding:3px 0;">';
+    h += '<div onclick="showTrainList(\\'' + crs + '\\')" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-size:13px;color:#1565C0;font-weight:600;margin-bottom:8px;padding:3px 0;">';
     h += '<span style="font-size:14px;">\u2190</span> All trains</div>';
 
     /* Header card */
     h += '<div style="background:linear-gradient(135deg,#0D47A1,#1565C0);color:white;border-radius:8px;padding:10px 12px;margin-bottom:8px;">';
     h += '<div style="font-size:13px;font-weight:700;margin-bottom:2px;">' + heading + '</div>';
-    h += '<div style="font-size:10px;opacity:0.9;">' + (d.operator || '') + '</div>';
-    h += '<div style="display:flex;gap:12px;margin-top:6px;font-size:10px;">';
+    h += '<div style="font-size:12px;opacity:0.9;">' + (d.operator || '') + '</div>';
+    h += '<div style="display:flex;gap:12px;margin-top:6px;font-size:12px;">';
     h += '<div><span style="opacity:0.7;">Platform</span><br><strong style="font-size:13px;">' + (d.platform || 'TBD') + '</strong></div>';
     h += '<div><span style="opacity:0.7;">Expected</span><br><strong style="font-size:13px;color:' + (d.expected === 'On time' ? '#81C784' : (d.expected === 'Cancelled' ? '#ef9a9a' : '#FFE082')) + ';">' + d.expected + '</strong></div>';
     h += '</div></div>';
@@ -950,7 +950,7 @@ function showTrainDetail(rid, crs) {
         });
     }
 
-    h += '<div style="font-size:10px;font-weight:700;color:#333;margin-bottom:4px;">Calling Points (' + stops.length + ' stops)</div>';
+    h += '<div style="font-size:13px;font-weight:700;color:#333;margin-bottom:4px;">Calling Points (' + stops.length + ' stops)</div>';
     h += '<div style="background:#f8f9fa;border-radius:6px;padding:6px 8px;">';
 
     stops.forEach(function(st, i) {
@@ -966,13 +966,13 @@ function showTrainDetail(rid, crs) {
         h += '<div style="display:flex;align-items:stretch;' + (st.current ? 'background:#E3F2FD;margin:2px -4px;padding:2px 4px;border-radius:4px;' : '') + '">';
         /* Left: dot + line */
         h += '<div style="display:flex;flex-direction:column;align-items:center;width:16px;flex-shrink:0;">';
-        h += '<span style="color:' + dotCol + ';font-size:' + (st.current ? '12px' : '9px') + ';line-height:16px;">' + dot + '</span>';
-        if (!isLast) h += '<div style="width:2px;flex:1;min-height:8px;background:' + lineCol + ';"></div>';
+        h += '<span style="color:' + dotCol + ';font-size:' + (st.current ? '14px' : '11px') + ';line-height:16px;">' + dot + '</span>';
+        if (!isLast) h += '<div style="width:2px;flex:1;min-height:8px;background:' + lineCol + ';"></div>'; else h += '<div style="width:2px;flex:1;min-height:8px;"></div>';
         h += '</div>';
         /* Right: name + time */
         h += '<div style="flex:1;min-width:0;padding-left:6px;display:flex;justify-content:space-between;align-items:center;line-height:16px;">';
-        h += '<span style="font-size:10px;color:' + txtCol + ';font-weight:' + fw + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + st.name;
-        if (st.cancelled) h += ' <span style="color:#d7191c;font-size:8px;font-weight:700;">CANC</span>';
+        h += '<span style="font-size:13px;color:' + txtCol + ';font-weight:' + fw + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + st.name;
+        if (st.cancelled) h += ' <span style="color:#d7191c;font-size:10px;font-weight:700;">CANC</span>';
         h += '</span>';
         if (st.st || st.et || st.at) {
             var scheduled = st.st || '';
@@ -1015,8 +1015,8 @@ function showTrainDetail(rid, crs) {
             if (st.current) statusCol = '#0D47A1';
             var timeParts = '';
             if (scheduled) timeParts += '<span style="font-weight:' + (st.current ? '700' : '500') + ';">' + scheduled + '</span>';
-            if (status) timeParts += ' <span style="color:' + statusCol + ';font-weight:600;font-size:8px;">(' + status + ')</span>';
-            if (timeParts) h += '<span style="font-size:9px;color:' + (st.current ? '#0D47A1' : '#555') + ';margin-left:6px;white-space:nowrap;">' + timeParts + '</span>';
+            if (status) timeParts += ' <span style="color:' + statusCol + ';font-weight:600;font-size:10px;">(' + status + ')</span>';
+            if (timeParts) h += '<span style="font-size:12px;color:' + (st.current ? '#0D47A1' : '#555') + ';margin-left:6px;white-space:nowrap;">' + timeParts + '</span>';
         }
         h += '</div></div>';
     });
@@ -1128,30 +1128,30 @@ window.addEventListener('message', function(e) {
 function buildTrainListHTML(data, crs) {
     var html = '<div style="font-size:13px;font-weight:700;color:#0D47A1;margin-bottom:6px;"> </div><div style="display:flex;flex-direction:column;gap:4px;">';
     if (data.departures && data.departures.length) {
-        html += '<div style="flex:1;min-height:0;"><div style="font-size:11px;font-weight:700;color:#1565C0;padding:4px 0 2px;">Departures</div>';
-        html += '<table style="width:100%;font-size:10px;border-collapse:collapse;table-layout:fixed;"><colgroup><col style="width:18%"><col style="width:42%"><col style="width:16%"><col style="width:24%"></colgroup><tr style="color:#999;"><td style="padding:2px 3px;">Time</td><td style="padding:2px 3px;text-align:left;">To</td><td style="padding:2px 3px;">Plat</td><td style="padding:2px 3px;">Exp</td></tr>';
+        html += '<div style="flex:1;min-height:0;"><div style="font-size:12px;font-weight:700;color:#1565C0;padding:4px 0 2px;">Departures</div>';
+        html += '<table style="width:100%;font-size:12px;border-collapse:collapse;table-layout:fixed;"><colgroup><col style="width:18%"><col style="width:42%"><col style="width:16%"><col style="width:24%"></colgroup><tr style="color:#999;"><td style="padding:2px 3px;">Time</td><td style="padding:2px 3px;text-align:left;">To</td><td style="padding:2px 3px;">Plat</td><td style="padding:2px 3px;">Exp</td></tr>';
         data.departures.forEach(function(d, idx) {
             var sc = d.expected === 'On time' ? '#1a9641' : (d.expected === 'Cancelled' ? '#d7191c' : '#f4a742');
             var rid = 'dep_' + idx;
-            html += '<tr class="svc-row" onclick="panelShowTrainDetail(\\x27' + rid + '\\x27,\\x27' + crs + '\\x27)" style="cursor:pointer;" title="Click for details"><td style="padding:3px;font-weight:600;">' + d.time + '</td><td style="padding:3px;text-align:left;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + d.destination + '</td><td style="padding:3px;text-align:center;">' + d.platform + '</td><td style="padding:3px;color:' + sc + ';font-weight:600;font-size:9px;">' + d.expected + '</td></tr>';
+            html += '<tr class="svc-row" onclick="panelShowTrainDetail(\\x27' + rid + '\\x27,\\x27' + crs + '\\x27)" style="cursor:pointer;" title="Click for details"><td style="padding:3px;font-weight:600;">' + d.time + '</td><td style="padding:3px;text-align:left;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + d.destination + '</td><td style="padding:3px;text-align:center;">' + d.platform + '</td><td style="padding:3px;color:' + sc + ';font-weight:600;font-size:12px;">' + d.expected + '</td></tr>';
         });
         html += '</table></div>';
     } else {
         html += '<div style="flex:1;min-height:0;"></div>';
     }
     if (data.arrivals && data.arrivals.length) {
-        html += '<div style="flex:1;min-height:0;"><div style="font-size:11px;font-weight:700;color:#4CAF50;padding:6px 0 2px;border-top:1px solid #eee;margin-top:4px;">Arrivals</div>';
-        html += '<table style="width:100%;font-size:10px;border-collapse:collapse;table-layout:fixed;"><colgroup><col style="width:18%"><col style="width:42%"><col style="width:16%"><col style="width:24%"></colgroup><tr style="color:#999;"><td style="padding:2px 3px;">Time</td><td style="padding:2px 3px;text-align:left;">From</td><td style="padding:2px 3px;">Plat</td><td style="padding:2px 3px;">Exp</td></tr>';
+        html += '<div style="flex:1;min-height:0;"><div style="font-size:12px;font-weight:700;color:#4CAF50;padding:6px 0 2px;border-top:1px solid #eee;margin-top:4px;">Arrivals</div>';
+        html += '<table style="width:100%;font-size:12px;border-collapse:collapse;table-layout:fixed;"><colgroup><col style="width:18%"><col style="width:42%"><col style="width:16%"><col style="width:24%"></colgroup><tr style="color:#999;"><td style="padding:2px 3px;">Time</td><td style="padding:2px 3px;text-align:left;">From</td><td style="padding:2px 3px;">Plat</td><td style="padding:2px 3px;">Exp</td></tr>';
         data.arrivals.forEach(function(a, idx) {
             var sc = a.expected === 'On time' ? '#1a9641' : (a.expected === 'Cancelled' ? '#d7191c' : '#f4a742');
             var rid = 'arr_' + idx;
-            html += '<tr class="svc-row" onclick="panelShowTrainDetail(\\x27' + rid + '\\x27,\\x27' + crs + '\\x27)" style="cursor:pointer;" title="Click for details"><td style="padding:3px;font-weight:600;">' + a.time + '</td><td style="padding:3px;text-align:left;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + a.origin + '</td><td style="padding:3px;text-align:center;">' + a.platform + '</td><td style="padding:3px;color:' + sc + ';font-weight:600;font-size:9px;">' + a.expected + '</td></tr>';
+            html += '<tr class="svc-row" onclick="panelShowTrainDetail(\\x27' + rid + '\\x27,\\x27' + crs + '\\x27)" style="cursor:pointer;" title="Click for details"><td style="padding:3px;font-weight:600;">' + a.time + '</td><td style="padding:3px;text-align:left;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + a.origin + '</td><td style="padding:3px;text-align:center;">' + a.platform + '</td><td style="padding:3px;color:' + sc + ';font-weight:600;font-size:12px;">' + a.expected + '</td></tr>';
         });
         html += '</table></div>';
     } else {
         html += '<div style="flex:1;min-height:0;"></div>';
     }
-    if ((!data.departures || !data.departures.length) && (!data.arrivals || !data.arrivals.length)) html += '<div style="color:#999;font-size:11px;padding:4px;">No services found.</div>';
+    if ((!data.departures || !data.departures.length) && (!data.arrivals || !data.arrivals.length)) html += '<div style="color:#999;font-size:12px;padding:4px;">No services found.</div>';
     html += '</div>';
     return html;
 }
@@ -1176,12 +1176,12 @@ function buildTrainDetailHTML(d, crs) {
     var isDep = d.type === 'dep';
     var heading = isDep ? (d.time + ' to ' + d.destination) : (d.time + ' from ' + d.origin);
     var h = '';
-    h += '<div onclick="panelShowTrainList(\\x27' + crs + '\\x27)" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#1565C0;font-weight:600;margin-bottom:8px;padding:3px 0;">';
+    h += '<div onclick="panelShowTrainList(\\x27' + crs + '\\x27)" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-size:13px;color:#1565C0;font-weight:600;margin-bottom:8px;padding:3px 0;">';
     h += '<span style="font-size:14px;">\u2190</span> All trains</div>';
     h += '<div style="background:linear-gradient(135deg,#0D47A1,#1565C0);color:white;border-radius:8px;padding:10px 12px;margin-bottom:8px;">';
     h += '<div style="font-size:13px;font-weight:700;margin-bottom:2px;">' + heading + '</div>';
-    h += '<div style="font-size:10px;opacity:0.9;">' + (d.operator || '') + '</div>';
-    h += '<div style="display:flex;gap:12px;margin-top:6px;font-size:10px;">';
+    h += '<div style="font-size:12px;opacity:0.9;">' + (d.operator || '') + '</div>';
+    h += '<div style="display:flex;gap:12px;margin-top:6px;font-size:12px;">';
     h += '<div><span style="opacity:0.7;">Platform</span><br><strong style="font-size:13px;">' + (d.platform || 'TBD') + '</strong></div>';
     h += '<div><span style="opacity:0.7;">Expected</span><br><strong style="font-size:13px;color:' + (d.expected === 'On time' ? '#81C784' : (d.expected === 'Cancelled' ? '#ef9a9a' : '#FFE082')) + ';">' + d.expected + '</strong></div>';
     h += '</div></div>';
@@ -1189,7 +1189,7 @@ function buildTrainDetailHTML(d, crs) {
     if (d.previous && d.previous.length) d.previous.forEach(function(p) { stops.push({name: p.name, st: p.st||'', et: p.et||'', at: p.at||'', passed:true, cancelled:p.cancelled}); });
     stops.push({name: d.station||'Here', st: d.time||'', et: d.expected||'', at:'', passed:true, current:true});
     if (d.subsequent && d.subsequent.length) d.subsequent.forEach(function(p) { stops.push({name: p.name, st: p.st||'', et: p.et||'', at: p.at||'', passed:false, cancelled:p.cancelled}); });
-    h += '<div style="font-size:10px;font-weight:700;color:#333;margin-bottom:4px;">Calling Points (' + stops.length + ' stops)</div>';
+    h += '<div style="font-size:13px;font-weight:700;color:#333;margin-bottom:4px;">Calling Points (' + stops.length + ' stops)</div>';
     h += '<div style="background:#f8f9fa;border-radius:6px;padding:6px 8px;">';
     stops.forEach(function(st, i) {
         var isLast = (i === stops.length - 1);
@@ -1201,12 +1201,12 @@ function buildTrainDetailHTML(d, crs) {
         var timeStr = st.at && st.at !== '' ? st.at : (st.et && st.et !== '' ? st.et : st.st);
         h += '<div style="display:flex;align-items:stretch;' + (st.current ? 'background:#E3F2FD;margin:2px -4px;padding:2px 4px;border-radius:4px;' : '') + '">';
         h += '<div style="display:flex;flex-direction:column;align-items:center;width:16px;flex-shrink:0;">';
-        h += '<span style="color:' + dotCol + ';font-size:' + (st.current ? '12px' : '9px') + ';line-height:16px;">' + dot + '</span>';
-        if (!isLast) h += '<div style="width:2px;flex:1;min-height:8px;background:' + lineCol + ';"></div>';
+        h += '<span style="color:' + dotCol + ';font-size:' + (st.current ? '14px' : '11px') + ';line-height:16px;">' + dot + '</span>';
+        if (!isLast) h += '<div style="width:2px;flex:1;min-height:8px;background:' + lineCol + ';"></div>'; else h += '<div style="width:2px;flex:1;min-height:8px;"></div>';
         h += '</div>';
         h += '<div style="flex:1;min-width:0;padding-left:6px;display:flex;justify-content:space-between;align-items:center;line-height:16px;">';
-        h += '<span style="font-size:10px;color:' + txtCol + ';font-weight:' + fw + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + st.name;
-        if (st.cancelled) h += ' <span style="color:#d7191c;font-size:8px;font-weight:700;">CANC</span>';
+        h += '<span style="font-size:13px;color:' + txtCol + ';font-weight:' + fw + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + st.name;
+        if (st.cancelled) h += ' <span style="color:#d7191c;font-size:10px;font-weight:700;">CANC</span>';
         h += '</span>';
         if (st.st || st.et || st.at) {
             var scheduled = st.st || '';
@@ -1249,8 +1249,8 @@ function buildTrainDetailHTML(d, crs) {
             if (st.current) statusCol = '#0D47A1';
             var timeParts = '';
             if (scheduled) timeParts += '<span style="font-weight:' + (st.current ? '700' : '500') + ';">' + scheduled + '</span>';
-            if (status) timeParts += ' <span style="color:' + statusCol + ';font-weight:600;font-size:8px;">(' + status + ')</span>';
-            if (timeParts) h += '<span style="font-size:9px;color:' + (st.current ? '#0D47A1' : '#555') + ';margin-left:6px;white-space:nowrap;">' + timeParts + '</span>';
+            if (status) timeParts += ' <span style="color:' + statusCol + ';font-weight:600;font-size:10px;">(' + status + ')</span>';
+            if (timeParts) h += '<span style="font-size:12px;color:' + (st.current ? '#0D47A1' : '#555') + ';margin-left:6px;white-space:nowrap;">' + timeParts + '</span>';
         }
         h += '</div></div>';
     });
