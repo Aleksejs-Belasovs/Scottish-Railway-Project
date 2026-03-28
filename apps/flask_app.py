@@ -13,6 +13,8 @@ from folium.plugins import MiniMap, MousePosition
 from folium import FeatureGroup
 from branca.element import Element
 
+
+
 # ------------------- Paths -------------------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
@@ -574,59 +576,117 @@ def format_journeys(j):
 
 
 # ------------------- Live Train Data API -------------------
-RAIL_API_URL = "https://api1.raildata.org.uk/1010-live-arrival-and-departure-boards-arr-and-dep1_1/LDBWS/api/20220120/GetArrDepBoardWithDetails"
-RAIL_API_KEY = os.environ.get("RAIL_API_KEY", "")
+RAIL_DEP_URL = "https://api1.raildata.org.uk/1010-live-departure-board-dep1_2/LDBWS/api/20220120/GetDepBoardWithDetails"
+RAIL_ARR_URL = "https://api1.raildata.org.uk/1010-live-arrival-board-arr/LDBWS/api/20220120/GetArrBoardWithDetails"
+RAIL_DEP_KEY = os.environ.get("RAIL_DEP_KEY", "")
+RAIL_ARR_KEY = os.environ.get("RAIL_ARR_KEY", "")
+RAIL_SVC_URL = "https://api1.raildata.org.uk/1010-service-details1_2/LDBWS/api/20220120/GetServiceDetails"
+RAIL_SVC_KEY = os.environ.get("RAIL_SVC_KEY", "")
+
+
+def _parse_calling_points(service, direction):
+    """Extract calling points from a WithDetails service."""
+    points = []
+    key = "previousCallingPoints" if direction == "previous" else "subsequentCallingPoints"
+    for cp_list in (service.get(key) or []):
+        for cp in (cp_list.get("callingPoint") or []) if isinstance(cp_list, dict) else []:
+            points.append({
+                "name": cp.get("locationName", ""),
+                "st": cp.get("st", ""),
+                "et": cp.get("et", ""),
+                "at": cp.get("at", ""),
+                "cancelled": cp.get("isCancelled", False),
+            })
+    return points
+
+
+def _build_service(s, stype):
+    """Build a departure or arrival dict from a LDBWS service."""
+    origin = s.get("origin", [{}])[0].get("locationName", "Unknown")
+    destination = s.get("destination", [{}])[0].get("locationName", "Unknown")
+    platform = s.get("platform", "TBD")
+    operator = s.get("operator", "")
+    sid = s.get("serviceID", "")
+    prev_pts = _parse_calling_points(s, "previous")
+    sub_pts = _parse_calling_points(s, "subsequent")
+    base = {"platform": platform, "operator": operator, "serviceID": sid,
+            "previous": prev_pts, "subsequent": sub_pts}
+    if stype == "dep":
+        return {**base, "time": s.get("std", ""), "expected": s.get("etd", ""),
+                "destination": destination}
+    else:
+        return {**base, "time": s.get("sta", ""), "expected": s.get("eta", ""),
+                "origin": origin}
 
 
 @app.route('/api/live/<crs>')
 def live_trains(crs):
     crs = crs.strip().upper()
-    try:
-        resp = _requests.get(
-            f"{RAIL_API_URL}/{crs}",
-            headers={"User-Agent": "", "x-apikey": RAIL_API_KEY},
-            params={"numRows": 50, "timeOffset": 0, "timeWindow": 120},
-            timeout=8,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-    except Exception as e:
-        return jsonify({"error": str(e)}), 502
+    dep_headers = {"User-Agent": "", "x-apikey": RAIL_DEP_KEY}
+    arr_headers = {"User-Agent": "", "x-apikey": RAIL_ARR_KEY}
+    params = {"numRows": 10, "timeOffset": 0, "timeWindow": 120}
 
-    services = data.get("trainServices") or []
     departures, arrivals = [], []
-    for s in services:
-        origin = s.get("origin", [{}])[0].get("locationName", "Unknown")
-        destination = s.get("destination", [{}])[0].get("locationName", "Unknown")
-        platform = s.get("platform", "TBD")
-        operator = s.get("operator", "")
-        sid = s.get("serviceID", "")
+    station_name = crs
 
-        # Extract calling points from WithDetails response
-        prev_pts, sub_pts = [], []
-        for cp_list in (s.get("previousCallingPoints") or []):
-            for cp in (cp_list.get("callingPoint") or []) if isinstance(cp_list, dict) else []:
-                prev_pts.append({"name": cp.get("locationName",""), "st": cp.get("st",""),
-                                 "et": cp.get("et",""), "at": cp.get("at",""),
-                                 "cancelled": cp.get("isCancelled", False)})
-        for cp_list in (s.get("subsequentCallingPoints") or []):
-            for cp in (cp_list.get("callingPoint") or []) if isinstance(cp_list, dict) else []:
-                sub_pts.append({"name": cp.get("locationName",""), "st": cp.get("st",""),
-                                "et": cp.get("et",""), "at": cp.get("at",""),
-                                "cancelled": cp.get("isCancelled", False)})
+    # ---- Departures (up to 10) ----
+    try:
+        resp = _requests.get(f"{RAIL_DEP_URL}/{crs}", headers=dep_headers,
+                             params=params, timeout=8)
+        resp.raise_for_status()
+        dep_data = resp.json()
+        station_name = dep_data.get("locationName", crs)
+        for s in (dep_data.get("trainServices") or []):
+            departures.append(_build_service(s, "dep"))
+    except Exception:
+        pass
 
-        base = {"platform": platform, "operator": operator, "serviceID": sid,
-                "previous": prev_pts, "subsequent": sub_pts}
-        if s.get("std"):
-            departures.append({**base, "time": s["std"], "expected": s.get("etd", ""),
-                               "destination": destination})
-        if s.get("sta"):
-            arrivals.append({**base, "time": s["sta"], "expected": s.get("eta", ""),
-                             "origin": origin})
-    station_name = data.get("locationName", crs)
+    # ---- Arrivals (up to 10) ----
+    try:
+        resp = _requests.get(f"{RAIL_ARR_URL}/{crs}", headers=arr_headers,
+                             params=params, timeout=8)
+        resp.raise_for_status()
+        arr_data = resp.json()
+        if station_name == crs:
+            station_name = arr_data.get("locationName", crs)
+        for s in (arr_data.get("trainServices") or []):
+            arrivals.append(_build_service(s, "arr"))
+    except Exception:
+        pass
+
+    if not departures and not arrivals:
+        return jsonify({"error": "No data available"}), 502
+
     return jsonify({"station": station_name, "departures": departures, "arrivals": arrivals})
 
 
+@app.route('/api/service/<serviceid>')
+def service_details(serviceid):
+    """Fetch full calling points for a single service via GetServiceDetails."""
+    svc_headers = {"User-Agent": "", "x-apikey": RAIL_SVC_KEY}
+    try:
+        resp = _requests.get(f"{RAIL_SVC_URL}/{serviceid}", headers=svc_headers, timeout=8)
+        resp.raise_for_status()
+        data = resp.json()
+        prev_pts = _parse_calling_points(data, "previous")
+        sub_pts = _parse_calling_points(data, "subsequent")
+        return jsonify({
+            "station": data.get("locationName", ""),
+            "crs": data.get("crs", ""),
+            "operator": data.get("operator", ""),
+            "platform": data.get("platform", ""),
+            "std": data.get("std", ""),
+            "sta": data.get("sta", ""),
+            "etd": data.get("etd", ""),
+            "eta": data.get("eta", ""),
+            "atd": data.get("atd", ""),
+            "ata": data.get("ata", ""),
+            "isCancelled": data.get("isCancelled", False),
+            "previous": prev_pts,
+            "subsequent": sub_pts,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 502
 
 
 _cached_index_html = None
@@ -910,6 +970,17 @@ function renderTrainList(container, data, crs) {
     container.onclick = function(e) { e.stopPropagation(); };
 }
 
+function _fetchServiceDetail(serviceID, callback) {
+    /* Fetch full calling points via GetServiceDetails */
+    fetch('/api/service/' + encodeURIComponent(serviceID))
+        .then(function(r) { return r.json(); })
+        .then(function(svc) {
+            if (!svc.error) callback(svc);
+            else callback(null);
+        })
+        .catch(function() { callback(null); });
+}
+
 function showTrainDetail(rid, crs) {
     if(window.event) window.event.stopPropagation();
     var container = document.getElementById('live-' + crs);
@@ -918,6 +989,21 @@ function showTrainDetail(rid, crs) {
     var d = _routeData[rid];
     if (!d) return;
 
+    /* Show loading spinner while fetching full route */
+    var backBtn = '<div onclick="showTrainList(\\'' + crs + '\\')" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-size:13px;color:#1565C0;font-weight:600;margin-bottom:8px;padding:3px 0;"><span style="font-size:14px;">\u2190</span> All trains</div>';
+    container.innerHTML = backBtn + '<div style="text-align:center;padding:20px;color:#666;font-size:12px;"><div style="display:inline-block;width:20px;height:20px;border:2px solid #ccc;border-top:2px solid #1565C0;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:6px;"></div><br>Loading full route\u2026</div>';
+    container.scrollTop = 0;
+
+    _fetchServiceDetail(d.serviceID, function(svc) {
+        if (svc) {
+            if (svc.previous && svc.previous.length) d.previous = svc.previous;
+            if (svc.subsequent && svc.subsequent.length) d.subsequent = svc.subsequent;
+        }
+        _renderTrainDetail(d, crs, container);
+    });
+}
+
+function _renderTrainDetail(d, crs, container) {
     var isDep = d.type === 'dep';
     var heading = isDep ? (d.time + ' to ' + d.destination) : (d.time + ' from ' + d.origin);
     var expColor = d.expected === 'On time' ? '#1a9641' : (d.expected === 'Cancelled' ? '#d7191c' : '#f4a742');
@@ -1109,8 +1195,16 @@ window.addEventListener('message', function(e) {
         var crs = e.data.crs;
         var d = _routeData[rid];
         if (d) {
-            var html = buildTrainDetailHTML(d, crs);
-            window.parent.postMessage({type:'trainDetailHTML', html: html}, '*');
+            /* Show loading state in panel immediately */
+            window.parent.postMessage({type:'trainDetailHTML', html: '<div style="text-align:center;padding:20px;color:#666;font-size:12px;"><div style="display:inline-block;width:20px;height:20px;border:2px solid #ccc;border-top:2px solid #1565C0;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:6px;"></div><br>Loading full route\u2026</div>'}, '*');
+            _fetchServiceDetail(d.serviceID, function(svc) {
+                if (svc) {
+                    if (svc.previous && svc.previous.length) d.previous = svc.previous;
+                    if (svc.subsequent && svc.subsequent.length) d.subsequent = svc.subsequent;
+                }
+                var html = buildTrainDetailHTML(d, crs);
+                window.parent.postMessage({type:'trainDetailHTML', html: html}, '*');
+            });
         }
     }
 
@@ -1160,8 +1254,16 @@ function panelShowTrainDetail(rid, crs) {
     if(window.event) window.event.stopPropagation();
     var d = _routeData[rid];
     if (!d) return;
-    var html = buildTrainDetailHTML(d, crs);
-    window.parent.postMessage({type:'trainDetailHTML', html: html}, '*');
+    /* Show loading state immediately */
+    window.parent.postMessage({type:'trainDetailHTML', html: '<div style="text-align:center;padding:20px;color:#666;font-size:12px;"><div style="display:inline-block;width:20px;height:20px;border:2px solid #ccc;border-top:2px solid #1565C0;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:6px;"></div><br>Loading full route\u2026</div>'}, '*');
+    _fetchServiceDetail(d.serviceID, function(svc) {
+        if (svc) {
+            if (svc.previous && svc.previous.length) d.previous = svc.previous;
+            if (svc.subsequent && svc.subsequent.length) d.subsequent = svc.subsequent;
+        }
+        var html = buildTrainDetailHTML(d, crs);
+        window.parent.postMessage({type:'trainDetailHTML', html: html}, '*');
+    });
 }
 
 function panelShowTrainList(crs) {
@@ -1392,6 +1494,7 @@ _ZOOM_SWAP_JS = """
 
 _STATION_CSS = """
 <style>
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 /* ── Station markers ── */
 .station-marker { width:22px; height:22px; display:flex; align-items:center; justify-content:center; position:relative;
     transform:scale(var(--zoom-scale, 0.22)); transition:transform 0.3s ease; transform-origin:center center; }
