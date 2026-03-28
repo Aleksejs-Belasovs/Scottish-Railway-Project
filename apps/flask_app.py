@@ -2209,9 +2209,8 @@ def about():
                     <div class="period">Sep 2025 &ndash; Present</div>
                     <div class="desc">
                         <ul>
-                            <li>Building cutting-edge fraud prevention models and supporting scam prevention use cases</li>
-                            <li>Accelerating statistical learning model development in CIB, aiming to reduce client onboarding timeline by &gt;60%</li>
-                            <li>Utilising Generative AI for FX conversion models with a potential of &pound;10M in business value</li>
+                            <li>Utilising cutting-edge AI to improve FX Conversion models generating over &pound;10M in business value</li>
+                            <li>Building cutting edge Generative AI based web-scraping solution to empower existing intelligence</li>
                         </ul>
                     </div>
                 </li>
@@ -2224,7 +2223,7 @@ def about():
                             <li>Underwrote over &pound;500M of securities-backed Lombard loans for individuals and corporates</li>
                             <li>Assessed and calculated derivative trading limits based on client requirements</li>
                             <li>Conducted in-depth analysis of complex, high-value portfolios comprising liquid and tradable assets</li>
-                            <li>Automated manual processes using VBA (saving 5+ hours weekly) and Python (portfolio rebalancing solution)</li>
+                            <li>Automated manual processes using VBA (saving 5+ hours weekly)</li>
                         </ul>
                     </div>
                 </li>
@@ -2234,10 +2233,9 @@ def about():
                     <div class="period">Feb 2024 &ndash; Dec 2024</div>
                     <div class="desc">
                         <ul>
-                            <li>Managed &pound;4M+ in strategic research funding</li>
-                            <li>Built out back-end data infrastructure for accurate financial reporting</li>
-                            <li>Automated application workflows using JavaScript (saving ~4 hours per week)</li>
-                            <li>Produced quarterly funding reports and financial forecasts based on historical trends</li>
+                            <li>Managed over &pound;4M+ in strategic research funding</li>
+                            <li>Built back-end data infrastructure for accurate financial reporting</li>
+                            <li>Automated application workflows using JavaScript (saving ~4 hours per week)</li> 
                         </ul>
                     </div>
                 </li>
