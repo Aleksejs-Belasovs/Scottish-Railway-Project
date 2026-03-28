@@ -585,7 +585,7 @@ def live_trains(crs):
         resp = _requests.get(
             f"{RAIL_API_URL}/{crs}",
             headers={"User-Agent": "", "x-apikey": RAIL_API_KEY},
-            params={"numRows": 10, "timeOffset": 0, "timeWindow": 120},
+            params={"numRows": 50, "timeOffset": 0, "timeWindow": 120},
             timeout=8,
         )
         resp.raise_for_status()
@@ -624,7 +624,7 @@ def live_trains(crs):
             arrivals.append({**base, "time": s["sta"], "expected": s.get("eta", ""),
                              "origin": origin})
     station_name = data.get("locationName", crs)
-    return jsonify({"station": station_name, "departures": departures[:5], "arrivals": arrivals[:5]})
+    return jsonify({"station": station_name, "departures": departures, "arrivals": arrivals})
 
 
 
