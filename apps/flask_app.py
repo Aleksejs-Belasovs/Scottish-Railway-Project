@@ -702,9 +702,19 @@ def _build_map():
     station_map = folium.Map(
         location=[center_lat, center_lon],
         min_lat=miny, max_lat=maxy, min_lon=minx, max_lon=maxx,
-        zoom_start=8, tiles='CartoDB Voyager',
+        zoom_start=8, tiles=None,
         max_bounds=True, zoom_control=True,
     )
+    folium.TileLayer(
+        tiles='https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+        attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> '
+             'contributors &copy; <a href="https://carto.com/">CARTO</a> | '
+             'Live train data powered by <a href="https://www.nationalrail.co.uk/" '
+             'target="_blank">National Rail Enquiries</a>',
+        name='CartoDB Voyager',
+        max_zoom=20,
+        subdomains='abcd',
+    ).add_to(station_map)
 
     # Scotland boundary
     folium.GeoJson(
