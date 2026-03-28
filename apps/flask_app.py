@@ -2311,17 +2311,20 @@ def about():
             <a href="/" style="text-decoration: none; color: inherit;">
                 <div class="project-highlight">
                     <div class="title">Scotland Railway Map &mdash; Interactive Station &amp; Line Explorer</div>
-                    <div class="desc">A full-stack data visualisation application built with <strong>Python</strong>, <strong>Flask</strong>, <strong>Folium</strong> and <strong>Leaflet.js</strong>. Features include:</div>
+                    <div class="desc">A full-stack data visualisation application built with <strong>Python</strong>, <strong>Flask</strong>, <strong>Folium</strong> and <strong>Leaflet.js</strong>, powered by live data from the <strong>National Rail LDBWS APIs</strong>. Features include:</div>
                 </div>
             </a>
             <ul style="margin-top:14px;padding-left:20px;font-size:13px;color:#555;line-height:2;">
-                <li>Interactive map with 350+ Scottish railway stations and live train departures/arrivals</li>
+                <li>Interactive map with <strong>350+ Scottish railway stations</strong> and real-time rail data</li>
+                <li>Live departures and arrivals — up to <strong>10 departures</strong> and <strong>10 arrivals</strong> per station via separate API feeds</li>
+                <li>Full route detail for any train — click a service to see <strong>every calling point</strong> with real-time status, fetched via the GetServiceDetails API</li>
+                <li>Colour-coded delay detection — <strong>on time</strong>, <strong>late</strong>, and <strong>cancelled</strong> indicators at every stop, with midnight wraparound handling</li>
                 <li>Colour-coded markers by usage volume, punctuality, or cancellation rates</li>
-                <li>Interactive sparkline trend charts showing 37 periods of performance data</li>
+                <li>Interactive sparkline trend charts showing <strong>37 periods</strong> of performance data</li>
                 <li>Integrated Origin-Destination Matrix (ODM) data for journey analysis</li>
                 <li>Station search with instant results and map navigation</li>
-                <li>Per-region zoom thresholds for optimal information density</li>
-                <li>Real-time data from the National Rail API</li>
+                <li>Responsive design — works in both map popups and a slide-in side panel</li>
+                <li>API keys secured via environment variables — no secrets in source code</li>
             </ul>
         </div>
 
